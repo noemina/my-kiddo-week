@@ -105,6 +105,11 @@ parties, doctor's appointments) — with a printable per-kid weekly PDF.
   (import the repo via the SonarCloud GitHub App — no workflow file or
   secrets needed).
 
+## Contributing
+
+Open a pull request against `main`. CI runs lint, type-check, tests, and a
+build; the Claude Code review workflow will also leave comments on the diff.
+
 ## Roadmap
 
 - **v2: External calendar sync** — push events to a caregiver's (e.g. a
