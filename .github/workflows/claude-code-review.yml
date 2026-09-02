@@ -1,0 +1,30 @@
+name: Claude Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    # Read-only on contents by design: this job leaves review comments only
+    # and cannot push commits or open PRs itself.
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Claude Code Review
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            /review
+
+            Review this pull request's diff for correctness bugs and
+            simplification opportunities. Post your findings as PR review
+            comments. Do not modify any files.

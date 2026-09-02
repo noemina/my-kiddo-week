@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  PARENT
+  CAREGIVER
+}
+
+model Family {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  users Membership[]
+  kids  Kid[]
+}
+
+// Join model: a user can belong to (and switch between) multiple families,
+// e.g. a nanny who cares for two different households.
+model Membership {
+  id       String   @id @default(cuid())
+  role     Role     @default(PARENT)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String
+  family   Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  familyId String
+  joinedAt DateTime @default(now())
+
+  @@unique([userId, familyId])
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+
+  memberships Membership[]
+}
+
+model Kid {
+  id       String @id @default(cuid())
+  name     String
+  color    String @default("#6366f1")
+  family   Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  familyId String
+
+  activities Activity[]
+  exceptions ActivityException[]
+
+  createdAt DateTime @default(now())
+}
+
+// A recurring weekly activity, e.g. "Swimming, Tuesdays 5-6pm".
+// validFrom/validTo scope the recurrence to a date range, e.g. a school
+// year running September to the next September; both are optional and an
+// unset bound means the activity repeats indefinitely on that side.
+model Activity {
+  id        String    @id @default(cuid())
+  title     String
+  dayOfWeek Int // 0 = Monday .. 6 = Sunday
+  startTime String // "17:00"
+  endTime   String?
+  location  String?
+  category  String? // school | gym | swimming | other, free text
+  color     String?
+  validFrom DateTime?
+  validTo   DateTime?
+
+  kid   Kid    @relation(fields: [kidId], references: [id], onDelete: Cascade)
+  kidId String
+
+  createdAt DateTime @default(now())
+}
+
+// A one-off event tied to a specific calendar date, e.g. a birthday party
+// or a doctor's appointment.
+model ActivityException {
+  id        String   @id @default(cuid())
+  title     String
+  date      DateTime // specific day this occurs on
+  startTime String?
+  endTime   String?
+  location  String?
+  notes     String?
+  category  String?
+  color     String?
+
+  kid   Kid    @relation(fields: [kidId], references: [id], onDelete: Cascade)
+  kidId String
+
+  createdAt DateTime @default(now())
+}
