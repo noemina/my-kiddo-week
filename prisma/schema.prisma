@@ -57,30 +57,33 @@ model Kid {
   createdAt DateTime @default(now())
 }
 
-// A recurring weekly activity, e.g. "Swimming, Tuesdays 5-6pm".
+// A recurring weekly activity, e.g. "Swimming, Tuesdays 5-6pm". Can be
+// shared by more than one kid (e.g. siblings doing the same class).
 // validFrom/validTo scope the recurrence to a date range, e.g. a school
 // year running September to the next September; both are optional and an
 // unset bound means the activity repeats indefinitely on that side.
+// includeInTypicalWeek is the default checked/unchecked state offered when
+// picking activities for the dateless "typical week" print view.
 model Activity {
-  id        String    @id @default(cuid())
-  title     String
-  dayOfWeek Int // 0 = Monday .. 6 = Sunday
-  startTime String // "17:00"
-  endTime   String?
-  location  String?
-  category  String? // school | gym | swimming | other, free text
-  color     String?
-  validFrom DateTime?
-  validTo   DateTime?
+  id                   String    @id @default(cuid())
+  title                String
+  dayOfWeek            Int // 0 = Monday .. 6 = Sunday
+  startTime            String // "17:00"
+  endTime              String?
+  location             String?
+  category             String? // school | gym | swimming | other, free text
+  color                String?
+  validFrom            DateTime?
+  validTo              DateTime?
+  includeInTypicalWeek Boolean   @default(true)
 
-  kid   Kid    @relation(fields: [kidId], references: [id], onDelete: Cascade)
-  kidId String
+  kids Kid[]
 
   createdAt DateTime @default(now())
 }
 
 // A one-off event tied to a specific calendar date, e.g. a birthday party
-// or a doctor's appointment.
+// or a doctor's appointment. Can be shared by more than one kid.
 model ActivityException {
   id        String   @id @default(cuid())
   title     String
@@ -92,8 +95,7 @@ model ActivityException {
   category  String?
   color     String?
 
-  kid   Kid    @relation(fields: [kidId], references: [id], onDelete: Cascade)
-  kidId String
+  kids Kid[]
 
   createdAt DateTime @default(now())
 }

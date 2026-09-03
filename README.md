@@ -2,7 +2,9 @@
 
 A weekly planner for parents to track their kids' activities — recurring
 weekly activities (school, gym, swimming) and one-off exceptions (birthday
-parties, doctor's appointments) — with a printable per-kid weekly PDF.
+parties, doctor's appointments), shareable across multiple kids — with a
+printable calendar-style weekly PDF, including a dateless "typical week"
+template built from your recurring activities.
 
 ## Stack
 
@@ -64,9 +66,18 @@ parties, doctor's appointments) — with a printable per-kid weekly PDF.
 - Add kids on the `/kids` page.
 - On `/planner`, add recurring activities (with an optional validity window,
   e.g. a school year running September to the next September) and one-off
-  events, then navigate between weeks.
-- Use "Print this week" to get a per-kid, per-day printable view — your
-  browser's print dialog can save it directly as a PDF.
+  events, then navigate between weeks. An activity or event can be assigned
+  to more than one kid (e.g. siblings sharing a class) — it shows up under
+  each assigned kid.
+- Use "Print this week" for a specific dated week (recurring occurrences +
+  that week's one-off events), or "Print typical week" for a dateless
+  template built from your recurring activities only. Both print views lay
+  the week out as a real calendar — a shared time axis down the left, each
+  day split into a sub-column per kid so overlapping activities (e.g. one
+  kid's gym class overlapping a sibling's swimming lesson) are visible side
+  by side — and let you choose which days and which events to include
+  before printing. Your browser's print dialog can save the result directly
+  as a PDF (landscape works best, given the width).
 
 ## Troubleshooting
 
@@ -97,8 +108,11 @@ parties, doctor's appointments) — with a printable per-kid weekly PDF.
 - **Kid** — belongs to a family.
 - **Activity** — a recurring weekly activity (day of week + time), with an
   optional `validFrom`/`validTo` window for activities that only apply for
-  part of the year.
-- **ActivityException** — a one-off event tied to a specific date.
+  part of the year, and `includeInTypicalWeek` (default checked/unchecked
+  state offered on the typical-week print page). Many-to-many with `Kid` —
+  one activity can be shared by more than one kid.
+- **ActivityException** — a one-off event tied to a specific date. Also
+  many-to-many with `Kid`.
 
 ## Scripts
 

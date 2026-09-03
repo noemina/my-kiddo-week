@@ -43,53 +43,69 @@ async function main() {
   const schoolYearStart = new Date(new Date().getFullYear(), 8, 1); // Sept 1
   const schoolYearEnd = new Date(new Date().getFullYear() + 1, 8, 1);
 
-  await prisma.activity.createMany({
-    data: [
-      // Mia: recurring school run, all year
-      { kidId: mia.id, title: "School", dayOfWeek: 0, startTime: "08:30", endTime: "15:30", category: "school" },
-      { kidId: mia.id, title: "School", dayOfWeek: 1, startTime: "08:30", endTime: "15:30", category: "school" },
-      { kidId: mia.id, title: "School", dayOfWeek: 2, startTime: "08:30", endTime: "15:30", category: "school" },
-      { kidId: mia.id, title: "School", dayOfWeek: 3, startTime: "08:30", endTime: "15:30", category: "school" },
-      { kidId: mia.id, title: "School", dayOfWeek: 4, startTime: "08:30", endTime: "15:30", category: "school" },
-      // Mia: swimming, only during the school year (Sept-Sept)
-      {
-        kidId: mia.id,
-        title: "Swimming",
-        dayOfWeek: 1,
-        startTime: "17:00",
-        endTime: "18:00",
-        location: "Community Pool",
-        category: "swimming",
-        color: "#0ea5e9",
-        validFrom: schoolYearStart,
-        validTo: schoolYearEnd,
-      },
-      // Leo: gym class every Wednesday
-      {
-        kidId: leo.id,
-        title: "Gym class",
-        dayOfWeek: 2,
-        startTime: "16:00",
-        endTime: "17:00",
-        location: "Sports Center",
-        category: "gym",
-        color: "#22c55e",
-      },
-    ],
-  });
+  const activities: Parameters<typeof prisma.activity.create>[0]["data"][] = [
+    // Mia: recurring school run, all year
+    ...[0, 1, 2, 3, 4].map((dayOfWeek) => ({
+      title: "School",
+      dayOfWeek,
+      startTime: "08:30",
+      endTime: "15:30",
+      category: "school",
+      kids: { connect: [{ id: mia.id }] },
+    })),
+    // Mia: swimming, only during the school year (Sept-Sept)
+    {
+      title: "Swimming",
+      dayOfWeek: 1,
+      startTime: "17:00",
+      endTime: "18:00",
+      location: "Community Pool",
+      category: "swimming",
+      color: "#0ea5e9",
+      validFrom: schoolYearStart,
+      validTo: schoolYearEnd,
+      kids: { connect: [{ id: mia.id }] },
+    },
+    // Leo: gym class every Wednesday
+    {
+      title: "Gym class",
+      dayOfWeek: 2,
+      startTime: "16:00",
+      endTime: "17:00",
+      location: "Sports Center",
+      category: "gym",
+      color: "#22c55e",
+      kids: { connect: [{ id: leo.id }] },
+    },
+    // Shared: both kids, same recurring event
+    {
+      title: "Family bike ride",
+      dayOfWeek: 5,
+      startTime: "10:00",
+      endTime: "11:30",
+      location: "Riverside path",
+      category: "family",
+      color: "#f59e0b",
+      kids: { connect: [{ id: mia.id }, { id: leo.id }] },
+    },
+  ];
+
+  for (const data of activities) {
+    await prisma.activity.create({ data });
+  }
 
   const nextSaturday = new Date();
   nextSaturday.setDate(nextSaturday.getDate() + ((6 - nextSaturday.getDay() + 7) % 7 || 7));
 
   await prisma.activityException.create({
     data: {
-      kidId: leo.id,
       title: "Birthday party",
       date: nextSaturday,
       startTime: "14:00",
       endTime: "16:30",
       location: "Fun Zone",
       notes: "Bring a small gift",
+      kids: { connect: [{ id: leo.id }] },
     },
   });
 

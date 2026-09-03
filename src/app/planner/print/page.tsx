@@ -1,9 +1,8 @@
 import { redirect } from "next/navigation";
-import { WeekGrid } from "@/components/WeekGrid";
+import { PrintWeekView } from "@/components/PrintWeekView";
 import { getActiveMembership } from "@/lib/family";
-import { getWeekSchedule } from "@/lib/planner-data";
-import { isoDate, startOfWeek } from "@/lib/week";
-import { PrintButton } from "@/components/PrintButton";
+import { getDatedPrintData } from "@/lib/planner-data";
+import { formatDayHeader, startOfWeek, weekDays } from "@/lib/week";
 
 export default async function PlannerPrintPage({
   searchParams,
@@ -15,22 +14,21 @@ export default async function PlannerPrintPage({
 
   const { week } = await searchParams;
   const weekStart = startOfWeek(week ? new Date(week) : new Date());
-  const schedule = await getWeekSchedule(membership.familyId, weekStart);
+  const { kids, instances } = await getDatedPrintData(membership.familyId, weekStart);
+
+  const dayLabels = weekDays(weekStart).map(
+    (date, i) => `${["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][i]}, ${formatDayHeader(date)}`
+  );
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-8 print:px-0 print:py-0">
-      <div className="mb-4 flex items-center justify-between print:hidden">
-        <h1 className="text-lg font-semibold">
-          {membership.family.name} — Week of {isoDate(weekStart)}
-        </h1>
-        <PrintButton />
-      </div>
-
-      <div className="hidden print:block print:mb-4 print:text-center print:text-lg print:font-semibold">
-        {membership.family.name} — Week of {isoDate(weekStart)}
-      </div>
-
-      <WeekGrid schedule={schedule} interactive={false} />
+    <main className="mx-auto max-w-6xl px-6 py-8 print:px-2 print:py-2">
+      <PrintWeekView
+        familyName={membership.family.name}
+        weekLabel={`Week of ${formatDayHeader(weekStart)}`}
+        kids={kids}
+        instances={instances}
+        dayLabels={dayLabels}
+      />
     </main>
   );
 }

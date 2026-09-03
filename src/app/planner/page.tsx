@@ -50,12 +50,20 @@ export default async function PlannerPage({
               Next →
             </Link>
           </div>
-          <Link
-            href={`/planner/print?week=${isoDate(weekStart)}`}
-            className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white"
-          >
-            Print this week
-          </Link>
+          <div className="flex gap-2">
+            <Link
+              href="/planner/print/typical"
+              className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium"
+            >
+              Print typical week
+            </Link>
+            <Link
+              href={`/planner/print?week=${isoDate(weekStart)}`}
+              className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white"
+            >
+              Print this week
+            </Link>
+          </div>
         </div>
 
         <div className="mt-6">
@@ -69,7 +77,7 @@ export default async function PlannerPage({
                 Add a recurring activity
               </summary>
               <form action={createActivityAction} className="mt-4 flex flex-col gap-3 text-sm">
-                <KidSelect kids={kids} />
+                <KidCheckboxes kids={kids} />
                 <input
                   name="title"
                   required
@@ -143,6 +151,10 @@ export default async function PlannerPage({
                     />
                   </label>
                 </div>
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" name="includeInTypicalWeek" defaultChecked />
+                  Include in the &quot;typical week&quot; print template
+                </label>
                 <button
                   type="submit"
                   className="mt-1 rounded-md bg-indigo-600 px-4 py-2 font-medium text-white"
@@ -157,7 +169,7 @@ export default async function PlannerPage({
                 Add a one-off event
               </summary>
               <form action={createExceptionAction} className="mt-4 flex flex-col gap-3 text-sm">
-                <KidSelect kids={kids} />
+                <KidCheckboxes kids={kids} />
                 <input
                   name="title"
                   required
@@ -217,17 +229,18 @@ export default async function PlannerPage({
   );
 }
 
-function KidSelect({ kids }: { kids: { id: string; name: string }[] }) {
+function KidCheckboxes({ kids }: { kids: { id: string; name: string }[] }) {
   return (
-    <label className="flex flex-col gap-1">
-      Kid
-      <select name="kidId" required className="rounded-md border border-gray-300 px-3 py-2">
+    <fieldset className="flex flex-col gap-1">
+      <legend className="mb-1">Kids</legend>
+      <div className="flex flex-wrap gap-3">
         {kids.map((kid) => (
-          <option key={kid.id} value={kid.id}>
+          <label key={kid.id} className="flex items-center gap-1.5">
+            <input type="checkbox" name="kidIds" value={kid.id} />
             {kid.name}
-          </option>
+          </label>
         ))}
-      </select>
-    </label>
+      </div>
+    </fieldset>
   );
 }

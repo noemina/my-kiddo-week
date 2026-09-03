@@ -7,7 +7,7 @@ import { getActiveMembership } from "@/lib/family";
 
 const activitySchema = z
   .object({
-    kidId: z.string().min(1),
+    kidIds: z.array(z.string().min(1)).min(1, "Select at least one kid"),
     title: z.string().min(1, "Title is required"),
     dayOfWeek: z.coerce.number().int().min(0).max(6),
     startTime: z.string().min(1, "Start time is required"),
@@ -16,15 +16,16 @@ const activitySchema = z
     category: z.string().optional(),
     validFrom: z.coerce.date().optional(),
     validTo: z.coerce.date().optional(),
+    includeInTypicalWeek: z.boolean(),
   })
   .refine(
     (data) => !data.validFrom || !data.validTo || data.validFrom <= data.validTo,
     { message: "Valid-from date must be before valid-to date", path: ["validTo"] }
   );
 
-async function assertKidBelongsToFamily(kidId: string, familyId: string) {
-  const kid = await prisma.kid.findFirst({ where: { id: kidId, familyId } });
-  if (!kid) throw new Error("Kid not found in this family");
+async function assertKidsBelongToFamily(kidIds: string[], familyId: string) {
+  const count = await prisma.kid.count({ where: { id: { in: kidIds }, familyId } });
+  if (count !== kidIds.length) throw new Error("Kid not found in this family");
 }
 
 export async function createActivityAction(formData: FormData) {
@@ -32,7 +33,7 @@ export async function createActivityAction(formData: FormData) {
   if (!membership) throw new Error("Not signed in");
 
   const parsed = activitySchema.safeParse({
-    kidId: formData.get("kidId"),
+    kidIds: formData.getAll("kidIds"),
     title: formData.get("title"),
     dayOfWeek: formData.get("dayOfWeek"),
     startTime: formData.get("startTime"),
@@ -41,12 +42,16 @@ export async function createActivityAction(formData: FormData) {
     category: formData.get("category") || undefined,
     validFrom: formData.get("validFrom") || undefined,
     validTo: formData.get("validTo") || undefined,
+    includeInTypicalWeek: formData.get("includeInTypicalWeek") === "on",
   });
   if (!parsed.success) throw new Error(parsed.error.issues[0]?.message);
 
-  await assertKidBelongsToFamily(parsed.data.kidId, membership.familyId);
+  await assertKidsBelongToFamily(parsed.data.kidIds, membership.familyId);
 
-  await prisma.activity.create({ data: parsed.data });
+  const { kidIds, ...data } = parsed.data;
+  await prisma.activity.create({
+    data: { ...data, kids: { connect: kidIds.map((id) => ({ id })) } },
+  });
 
   revalidatePath("/planner");
 }
@@ -59,7 +64,7 @@ export async function deleteActivityAction(formData: FormData) {
   if (typeof activityId !== "string") throw new Error("Missing activity id");
 
   await prisma.activity.deleteMany({
-    where: { id: activityId, kid: { familyId: membership.familyId } },
+    where: { id: activityId, kids: { some: { familyId: membership.familyId } } },
   });
 
   revalidatePath("/planner");
