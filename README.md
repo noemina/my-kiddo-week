@@ -68,6 +68,22 @@ parties, doctor's appointments) — with a printable per-kid weekly PDF.
 - Use "Print this week" to get a per-kid, per-day printable view — your
   browser's print dialog can save it directly as a PDF.
 
+## Troubleshooting
+
+- **Do not run `npm audit fix --force`.** The 4 high-severity advisories
+  `npm audit` reports live in Prisma's own MySQL/config tooling
+  (`mysql2`, `deepmerge-ts`) — unused by this app, which only talks to
+  Postgres — but `--force` "fixes" them by downgrading `prisma` to a `6.x`
+  release, which is incompatible with this project's `prisma7.config.ts`
+  and the `@prisma/client` v7 driver-adapter API. If it happens anyway
+  (check `prisma` and `@prisma/client` are on matching major versions in
+  `package.json`), restore `"prisma": "^7.10.0"` and reinstall.
+- If `npm install` crashes with `Cannot read properties of null (reading
+  'edgesOut')`, that's a known npm/arborist bug in dependency resolution
+  (unrelated to this project). Prefer `npm ci` (uses the committed
+  lockfile directly, doesn't hit it); if you must run `npm install`, add
+  `--legacy-peer-deps`.
+
 ## Data model
 
 - **Family** — a household; users belong to a family via a `Membership`
