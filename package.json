@@ -44,5 +44,9 @@
     "typescript": "^5",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.11"
+  },
+  "overrides": {
+    "mysql2": "3.24.3",
+    "deepmerge-ts": "8.0.2"
   }
 }

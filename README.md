@@ -70,19 +70,24 @@ parties, doctor's appointments) — with a printable per-kid weekly PDF.
 
 ## Troubleshooting
 
-- **Do not run `npm audit fix --force`.** The 4 high-severity advisories
-  `npm audit` reports live in Prisma's own MySQL/config tooling
-  (`mysql2`, `deepmerge-ts`) — unused by this app, which only talks to
-  Postgres — but `--force` "fixes" them by downgrading `prisma` to a `6.x`
-  release, which is incompatible with this project's `prisma7.config.ts`
-  and the `@prisma/client` v7 driver-adapter API. If it happens anyway
-  (check `prisma` and `@prisma/client` are on matching major versions in
-  `package.json`), restore `"prisma": "^7.10.0"` and reinstall.
-- If `npm install` crashes with `Cannot read properties of null (reading
-  'edgesOut')`, that's a known npm/arborist bug in dependency resolution
-  (unrelated to this project). Prefer `npm ci` (uses the committed
-  lockfile directly, doesn't hit it); if you must run `npm install`, add
-  `--legacy-peer-deps`.
+- **If `npm audit` ever reports vulnerabilities again**: check whether
+  they're transitive deps of `prisma`'s own MySQL/config tooling
+  (`mysql2`, `deepmerge-ts`) — this app only uses the Postgres adapter, so
+  those aren't in the runtime path. Patch the specific package via the
+  `overrides` field in `package.json` (pin it to a fixed version) rather
+  than running `npm audit fix --force`, which "fixes" them by downgrading
+  the direct `prisma` dependency to a `6.x` release — incompatible with
+  this project's `prisma7.config.ts` and the `@prisma/client` v7
+  driver-adapter API. If that happens anyway, restore
+  `"prisma": "^7.10.0"` in `package.json` and reinstall.
+- If a from-scratch `npm install` crashes with `Cannot read properties of
+  null (reading 'edgesOut')`, that's a known npm/arborist bug unrelated to
+  this project (hit while resolving Vitest's peer dependencies on npm
+  10.9.8). Prefer `npm ci` when a lockfile already exists — it doesn't
+  re-resolve from scratch and avoids it. Regenerating the lockfile from
+  scratch needs two passes: `npm install --legacy-peer-deps` first, then a
+  second plain `npm install` on top to complete the strict peer metadata
+  (`npm ci` needs) without crashing.
 
 ## Data model
 
