@@ -11,7 +11,7 @@ export default async function TypicalWeekPrintPage() {
   const { kids, instances } = await getTypicalWeekData(membership.familyId);
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-8 print:px-2 print:py-2">
+    <main className="mx-auto max-w-6xl px-6 py-8 print:max-w-none print:px-2 print:py-2">
       <PrintWeekView
         familyName={membership.family.name}
         weekLabel="Typical Week"

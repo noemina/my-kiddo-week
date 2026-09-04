@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   computeTimeRange,
   hourTicks,
@@ -11,7 +12,11 @@ import {
 import type { PrintInstance, PrintKid } from "@/lib/planner-data";
 import { PrintButton } from "@/components/PrintButton";
 
-const GRID_HEIGHT = 640;
+// A viewport-relative height (rather than a fixed px value) so the grid
+// adapts to the actual page size when printing landscape, instead of being
+// sized for an on-screen browser window and then overflowing or leaving
+// dead space on paper.
+const GRID_HEIGHT = "70vh";
 const DEFAULT_DURATION_MINUTES = 45;
 
 type Props = {
@@ -61,9 +66,17 @@ export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabel
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4 print:hidden">
-        <h1 className="text-lg font-semibold">
-          {familyName} — {weekLabel}
-        </h1>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/planner"
+            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium"
+          >
+            ← Back to planner
+          </Link>
+          <h1 className="text-lg font-semibold">
+            {familyName} — {weekLabel}
+          </h1>
+        </div>
         <PrintButton />
       </div>
 
@@ -165,7 +178,7 @@ export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabel
                       .map((e) => (
                         <div
                           key={e.id}
-                          className="truncate rounded border-l-2 bg-gray-50 px-1 print:bg-white"
+                          className="truncate rounded border-l-2 bg-gray-50 px-1 print:bg-white print:break-inside-avoid"
                           style={{ borderLeftColor: e.color }}
                         >
                           {e.title}
@@ -202,7 +215,7 @@ export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabel
                         return (
                           <div
                             key={entry.id}
-                            className="absolute inset-x-0.5 overflow-hidden rounded border-l-2 bg-gray-50 px-1 py-0.5 leading-tight print:bg-white"
+                            className="absolute inset-x-0.5 overflow-hidden rounded border-l-2 bg-gray-50 px-1 py-0.5 leading-tight print:bg-white print:break-inside-avoid"
                             style={{
                               top: `${topPct}%`,
                               height: `${heightPct}%`,

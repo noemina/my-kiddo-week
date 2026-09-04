@@ -21,7 +21,7 @@ export default async function PlannerPrintPage({
   );
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-8 print:px-2 print:py-2">
+    <main className="mx-auto max-w-6xl px-6 py-8 print:max-w-none print:px-2 print:py-2">
       <PrintWeekView
         familyName={membership.family.name}
         weekLabel={`Week of ${formatDayHeader(weekStart)}`}
