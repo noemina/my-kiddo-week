@@ -251,7 +251,7 @@ export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabel
         </div>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 print:mt-2">
         <label className="mb-1 block text-sm font-semibold print:hidden" htmlFor="print-notes">
           {t("notes")}
         </label>
@@ -264,7 +264,7 @@ export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabel
           className="w-full rounded-md border border-gray-300 p-2 text-sm print:hidden"
         />
         {notes && (
-          <div className="hidden whitespace-pre-wrap border-t border-gray-300 pt-2 text-sm print:block">
+          <div className="hidden whitespace-pre-wrap border-t border-gray-300 pt-1 text-[10px] print:block">
             <p className="font-semibold">{t("notes")}</p>
             <p>{notes}</p>
           </div>

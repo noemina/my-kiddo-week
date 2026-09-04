@@ -49,7 +49,9 @@ body {
 }
 
 @media print {
+  /* Leaves room below the grid (headers + this + margins) so the notes
+     section lands on the same page instead of spilling onto a second. */
   .week-grid-height {
-    height: 150mm;
+    height: 115mm;
   }
 }
