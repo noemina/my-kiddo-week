@@ -18,7 +18,7 @@ export default async function TypicalWeekPrintPage() {
   const dayLabels = Array.from({ length: 7 }, (_, i) => weekdayName(i, locale));
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-8 print:max-w-none print:px-2 print:py-2">
+    <main className="mx-auto w-full max-w-6xl px-6 py-8 print:max-w-none print:w-full print:px-2 print:py-2">
       <PrintWeekView
         familyName={membership.family.name}
         weekLabel={t("typicalWeek")}

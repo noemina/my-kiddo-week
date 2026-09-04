@@ -26,13 +26,30 @@ body {
 }
 
 @media print {
+  /* Explicit A4-landscape dimensions, not the "landscape" keyword — some
+     browsers' print dialogs (Firefox included) let their own Orientation
+     control override a keyword hint, but an explicit wide page size is
+     unambiguous. */
   @page {
-    size: landscape;
+    size: 297mm 210mm;
     margin: 10mm;
   }
 
   html,
   body {
     background: #ffffff;
+  }
+}
+
+/* vh/vw have no stable meaning while a page is being paginated for print —
+   they can collapse to near-zero in some print engines — so the printable
+   week grid's height comes from this class instead of an inline vh value. */
+.week-grid-height {
+  height: 640px;
+}
+
+@media print {
+  .week-grid-height {
+    height: 150mm;
   }
 }

@@ -85,7 +85,9 @@
     "eventsToInclude": "Events to include",
     "noRecurringActivities": "No recurring activities yet.",
     "noKidsMessage": "Add kids first to build a printable week.",
-    "typicalWeek": "Typical Week"
+    "typicalWeek": "Typical Week",
+    "notes": "Notes",
+    "notesPlaceholder": "Add any notes to print with this week..."
   },
   "Locale": {
     "label": "Language",

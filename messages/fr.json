@@ -85,7 +85,9 @@
     "eventsToInclude": "Événements à inclure",
     "noRecurringActivities": "Aucune activité récurrente pour l'instant.",
     "noKidsMessage": "Ajoutez d'abord des enfants pour créer une semaine imprimable.",
-    "typicalWeek": "Semaine type"
+    "typicalWeek": "Semaine type",
+    "notes": "Notes",
+    "notesPlaceholder": "Ajoutez des notes à imprimer avec cette semaine..."
   },
   "Locale": {
     "label": "Langue",

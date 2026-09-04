@@ -85,7 +85,9 @@
     "eventsToInclude": "Einzuschließende Ereignisse",
     "noRecurringActivities": "Noch keine wiederkehrenden Aktivitäten.",
     "noKidsMessage": "Zuerst Kinder hinzufügen, um eine druckbare Woche zu erstellen.",
-    "typicalWeek": "Typische Woche"
+    "typicalWeek": "Typische Woche",
+    "notes": "Notizen",
+    "notesPlaceholder": "Notizen hinzufügen, die mit dieser Woche gedruckt werden..."
   },
   "Locale": {
     "label": "Sprache",

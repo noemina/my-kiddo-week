@@ -85,7 +85,9 @@
     "eventsToInclude": "Eventi da includere",
     "noRecurringActivities": "Ancora nessuna attività ricorrente.",
     "noKidsMessage": "Aggiungi prima dei bambini per creare una settimana stampabile.",
-    "typicalWeek": "Settimana tipo"
+    "typicalWeek": "Settimana tipo",
+    "notes": "Note",
+    "notesPlaceholder": "Aggiungi note da stampare con questa settimana..."
   },
   "Locale": {
     "label": "Lingua",
