@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   computeTimeRange,
   hourTicks,
@@ -35,6 +36,7 @@ function addMinutes(time: string, minutes: number): string {
 }
 
 export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabels }: Props) {
+  const t = useTranslations("Print");
   const [checkedDays, setCheckedDays] = useState<boolean[]>(() => Array(7).fill(true));
   const [checkedInstances, setCheckedInstances] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(instances.map((i) => [i.id, i.defaultChecked]))
@@ -60,7 +62,7 @@ export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabel
   }
 
   if (kids.length === 0) {
-    return <p className="text-sm text-gray-500">Add kids first to build a printable week.</p>;
+    return <p className="text-sm text-gray-500">{t("noKidsMessage")}</p>;
   }
 
   return (
@@ -71,7 +73,7 @@ export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabel
             href="/planner"
             className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium"
           >
-            ← Back to planner
+            {t("backToPlanner")}
           </Link>
           <h1 className="text-lg font-semibold">
             {familyName} — {weekLabel}
@@ -86,7 +88,7 @@ export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabel
 
       <div className="mb-6 grid gap-4 print:hidden sm:grid-cols-2">
         <fieldset className="rounded-md border border-gray-200 p-3 text-sm">
-          <legend className="px-1 font-semibold">Days to include</legend>
+          <legend className="px-1 font-semibold">{t("daysToInclude")}</legend>
           <div className="mt-1 flex flex-wrap gap-3">
             {dayLabels.map((label, index) => (
               <label key={index} className="flex items-center gap-1.5">
@@ -106,10 +108,10 @@ export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabel
         </fieldset>
 
         <fieldset className="rounded-md border border-gray-200 p-3 text-sm">
-          <legend className="px-1 font-semibold">Events to include</legend>
+          <legend className="px-1 font-semibold">{t("eventsToInclude")}</legend>
           <div className="mt-1 flex max-h-40 flex-col gap-1 overflow-y-auto">
             {instances.length === 0 && (
-              <p className="text-gray-500">No recurring activities yet.</p>
+              <p className="text-gray-500">{t("noRecurringActivities")}</p>
             )}
             {instances.map((instance) => (
               <label key={instance.id} className="flex items-center gap-1.5">

@@ -1,4 +1,5 @@
-import { DAY_LABELS, formatDayHeader } from "@/lib/week";
+import { getLocale } from "next-intl/server";
+import { formatDayHeader, weekdayName } from "@/lib/week";
 import type { KidSchedule, ScheduleEntry } from "@/lib/planner-data";
 import { deleteActivityAction } from "@/lib/actions/activity-actions";
 import { deleteExceptionAction } from "@/lib/actions/exception-actions";
@@ -44,21 +45,20 @@ function EntryRow({ entry, interactive }: { entry: ScheduleEntry; interactive: b
   );
 }
 
-export function WeekGrid({
+export async function WeekGrid({
   schedule,
   interactive = true,
+  noKidsMessage,
 }: {
   schedule: KidSchedule[];
   interactive?: boolean;
+  noKidsMessage: string;
 }) {
   if (schedule.length === 0) {
-    return (
-      <p className="text-sm text-gray-500">
-        No kids added yet — head to the Kids page to add your first one.
-      </p>
-    );
+    return <p className="text-sm text-gray-500">{noKidsMessage}</p>;
   }
 
+  const locale = await getLocale();
   const days = schedule[0].days;
 
   return (
@@ -66,8 +66,8 @@ export function WeekGrid({
       {days.map((day, dayIndex) => (
         <div key={dayIndex} className="flex flex-col gap-2">
           <div className="border-b border-gray-200 pb-1 text-center">
-            <p className="text-sm font-semibold">{DAY_LABELS[dayIndex]}</p>
-            <p className="text-xs text-gray-500">{formatDayHeader(day.date)}</p>
+            <p className="text-sm font-semibold">{weekdayName(dayIndex, locale)}</p>
+            <p className="text-xs text-gray-500">{formatDayHeader(day.date, locale)}</p>
           </div>
 
           {schedule.map((kidSchedule) => (

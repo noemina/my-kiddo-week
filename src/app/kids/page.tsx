@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { AppNav } from "@/components/AppNav";
 import { getActiveMembership } from "@/lib/family";
 import { prisma } from "@/lib/prisma";
@@ -10,16 +11,19 @@ export default async function KidsPage() {
   const membership = await getActiveMembership();
   if (!membership) redirect("/login");
 
-  const kids = await prisma.kid.findMany({
-    where: { familyId: membership.familyId },
-    orderBy: { createdAt: "asc" },
-  });
+  const [kids, t] = await Promise.all([
+    prisma.kid.findMany({
+      where: { familyId: membership.familyId },
+      orderBy: { createdAt: "asc" },
+    }),
+    getTranslations("Kids"),
+  ]);
 
   return (
     <>
       <AppNav active="kids" />
       <main className="mx-auto max-w-2xl px-6 py-8">
-        <h1 className="text-lg font-semibold">Kids</h1>
+        <h1 className="text-lg font-semibold">{t("title")}</h1>
 
         <ul className="mt-6 flex flex-col gap-2">
           {kids.map((kid) => (
@@ -38,29 +42,27 @@ export default async function KidsPage() {
               <form action={deleteKidAction}>
                 <input type="hidden" name="kidId" value={kid.id} />
                 <button type="submit" className="text-sm text-gray-400 hover:text-red-600">
-                  Remove
+                  {t("remove")}
                 </button>
               </form>
             </li>
           ))}
-          {kids.length === 0 && (
-            <p className="text-sm text-gray-500">No kids yet — add your first one below.</p>
-          )}
+          {kids.length === 0 && <p className="text-sm text-gray-500">{t("empty")}</p>}
         </ul>
 
         <form
           action={createKidAction}
           className="mt-8 flex flex-col gap-3 rounded-md border border-gray-200 p-4 text-sm"
         >
-          <h2 className="font-semibold">Add a kid</h2>
+          <h2 className="font-semibold">{t("addTitle")}</h2>
           <input
             name="name"
             required
-            placeholder="Name"
+            placeholder={t("namePlaceholder")}
             className="rounded-md border border-gray-300 px-3 py-2"
           />
           <label className="flex flex-col gap-1">
-            Color
+            {t("color")}
             <select
               name="color"
               defaultValue={DEFAULT_COLORS[kids.length % DEFAULT_COLORS.length]}
@@ -77,7 +79,7 @@ export default async function KidsPage() {
             type="submit"
             className="mt-1 rounded-md bg-indigo-600 px-4 py-2 font-medium text-white"
           >
-            Add kid
+            {t("addButton")}
           </button>
         </form>
       </main>

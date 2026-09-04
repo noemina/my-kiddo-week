@@ -1,7 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
+import type { ComponentProps } from "react";
 import { PrintWeekView } from "@/components/PrintWeekView";
 import type { PrintInstance, PrintKid } from "@/lib/planner-data";
+import messages from "../../messages/en.json";
+
+function renderPrintWeekView(props: ComponentProps<typeof PrintWeekView>) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      <PrintWeekView {...props} />
+    </NextIntlClientProvider>
+  );
+}
 
 const kids: PrintKid[] = [
   { id: "kid-1", name: "Mia", color: "#ec4899" },
@@ -39,30 +50,26 @@ const dayLabels = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Satu
 
 describe("PrintWeekView", () => {
   it("shows all default-checked events initially", () => {
-    render(
-      <PrintWeekView
-        familyName="Test Family"
-        weekLabel="Typical Week"
-        kids={kids}
-        instances={instances}
-        dayLabels={dayLabels}
-      />
-    );
+    renderPrintWeekView({
+      familyName: "Test Family",
+      weekLabel: "Typical Week",
+      kids,
+      instances,
+      dayLabels,
+    });
 
     expect(screen.getAllByText("Swimming")).toHaveLength(2); // selector label + grid entry
     expect(screen.getAllByText("Gym class")).toHaveLength(2);
   });
 
   it("removes an event from the grid when its checkbox is unchecked", () => {
-    render(
-      <PrintWeekView
-        familyName="Test Family"
-        weekLabel="Typical Week"
-        kids={kids}
-        instances={instances}
-        dayLabels={dayLabels}
-      />
-    );
+    renderPrintWeekView({
+      familyName: "Test Family",
+      weekLabel: "Typical Week",
+      kids,
+      instances,
+      dayLabels,
+    });
 
     const swimmingCheckbox = screen
       .getAllByRole("checkbox")
@@ -77,15 +84,13 @@ describe("PrintWeekView", () => {
   });
 
   it("removes a day's column when its checkbox is unchecked", () => {
-    render(
-      <PrintWeekView
-        familyName="Test Family"
-        weekLabel="Typical Week"
-        kids={kids}
-        instances={instances}
-        dayLabels={dayLabels}
-      />
-    );
+    renderPrintWeekView({
+      familyName: "Test Family",
+      weekLabel: "Typical Week",
+      kids,
+      instances,
+      dayLabels,
+    });
 
     expect(screen.getAllByText("Tuesday")).toHaveLength(2); // day checkbox label + column header
 

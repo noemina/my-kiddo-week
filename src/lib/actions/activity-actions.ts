@@ -2,15 +2,16 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { getActiveMembership } from "@/lib/family";
 
 const activitySchema = z
   .object({
-    kidIds: z.array(z.string().min(1)).min(1, "Select at least one kid"),
-    title: z.string().min(1, "Title is required"),
+    kidIds: z.array(z.string().min(1)).min(1),
+    title: z.string().min(1),
     dayOfWeek: z.coerce.number().int().min(0).max(6),
-    startTime: z.string().min(1, "Start time is required"),
+    startTime: z.string().min(1),
     endTime: z.string().optional(),
     location: z.string().optional(),
     category: z.string().optional(),
@@ -18,10 +19,10 @@ const activitySchema = z
     validTo: z.coerce.date().optional(),
     includeInTypicalWeek: z.boolean(),
   })
-  .refine(
-    (data) => !data.validFrom || !data.validTo || data.validFrom <= data.validTo,
-    { message: "Valid-from date must be before valid-to date", path: ["validTo"] }
-  );
+  .refine((data) => !data.validFrom || !data.validTo || data.validFrom <= data.validTo, {
+    message: "validityRange",
+    path: ["validTo"],
+  });
 
 async function assertKidsBelongToFamily(kidIds: string[], familyId: string) {
   const count = await prisma.kid.count({ where: { id: { in: kidIds }, familyId } });
@@ -44,7 +45,12 @@ export async function createActivityAction(formData: FormData) {
     validTo: formData.get("validTo") || undefined,
     includeInTypicalWeek: formData.get("includeInTypicalWeek") === "on",
   });
-  if (!parsed.success) throw new Error(parsed.error.issues[0]?.message);
+  if (!parsed.success) {
+    const t = await getTranslations("PlannerErrors");
+    const path = parsed.error.issues[0]?.path[0];
+    const key = path === "kidIds" ? "kidRequired" : path === "validTo" ? "validityRange" : "invalidInput";
+    throw new Error(t(key));
+  }
 
   await assertKidsBelongToFamily(parsed.data.kidIds, membership.familyId);
 

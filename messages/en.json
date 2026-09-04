@@ -1,0 +1,97 @@
+{
+  "Nav": {
+    "appName": "my-kiddo-week",
+    "planner": "Planner",
+    "kids": "Kids",
+    "signOut": "Sign out",
+    "switchFamily": "Switch family…"
+  },
+  "Login": {
+    "title": "Sign in",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign in",
+    "submitPending": "Signing in…",
+    "noAccount": "No account yet?",
+    "createOne": "Create one"
+  },
+  "Register": {
+    "title": "Create your family account",
+    "subtitle": "One account per household — you can invite a nanny or co-parent later.",
+    "familyName": "Family name",
+    "familyNamePlaceholder": "The Smiths",
+    "yourName": "Your name",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Create account",
+    "submitPending": "Creating account…",
+    "haveAccount": "Already have an account?",
+    "signIn": "Sign in"
+  },
+  "AuthErrors": {
+    "familyNameRequired": "Family name is required",
+    "nameRequired": "Your name is required",
+    "emailInvalid": "Enter a valid email",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "emailTaken": "An account with that email already exists",
+    "passwordRequired": "Password is required",
+    "invalidCredentials": "Invalid email or password",
+    "invalidInput": "Invalid input"
+  },
+  "Kids": {
+    "title": "Kids",
+    "empty": "No kids yet — add your first one below.",
+    "remove": "Remove",
+    "addTitle": "Add a kid",
+    "namePlaceholder": "Name",
+    "color": "Color",
+    "addButton": "Add kid"
+  },
+  "Planner": {
+    "prev": "← Prev",
+    "next": "Next →",
+    "weekOf": "Week of {date}",
+    "printTypicalWeek": "Print typical week",
+    "printThisWeek": "Print this week",
+    "addRecurringTitle": "Add a recurring activity",
+    "addOneOffTitle": "Add a one-off event",
+    "kids": "Kids",
+    "titlePlaceholderActivity": "Swimming lesson",
+    "titlePlaceholderException": "Birthday party",
+    "dayOfWeek": "Day of week",
+    "startTime": "Start time",
+    "endTime": "End time",
+    "locationPlaceholder": "Location (optional)",
+    "categoryPlaceholder": "Category, e.g. gym, school (optional)",
+    "validityHint": "Optional validity period — leave blank for an activity that repeats indefinitely, or set a range for e.g. a school year (Sept–Sept).",
+    "validFrom": "Valid from",
+    "validTo": "Valid to",
+    "includeInTypicalWeek": "Include in the \"typical week\" print template",
+    "submitActivity": "Add recurring activity",
+    "date": "Date",
+    "notesPlaceholder": "Notes (optional)",
+    "submitException": "Add one-off event",
+    "noKidsMessage": "No kids added yet — head to the Kids page to add your first one."
+  },
+  "PlannerErrors": {
+    "kidRequired": "Select at least one kid",
+    "validityRange": "Valid-from date must be before valid-to date",
+    "invalidInput": "Invalid input"
+  },
+  "Print": {
+    "backToPlanner": "← Back to planner",
+    "printButton": "Save as PDF / Print",
+    "daysToInclude": "Days to include",
+    "eventsToInclude": "Events to include",
+    "noRecurringActivities": "No recurring activities yet.",
+    "noKidsMessage": "Add kids first to build a printable week.",
+    "typicalWeek": "Typical Week"
+  },
+  "Locale": {
+    "label": "Language",
+    "en": "English",
+    "fr": "Français",
+    "it": "Italiano",
+    "de": "Deutsch"
+  }
+}

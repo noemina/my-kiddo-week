@@ -1,0 +1,97 @@
+{
+  "Nav": {
+    "appName": "my-kiddo-week",
+    "planner": "Planning",
+    "kids": "Enfants",
+    "signOut": "Se déconnecter",
+    "switchFamily": "Changer de famille…"
+  },
+  "Login": {
+    "title": "Connexion",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "submit": "Se connecter",
+    "submitPending": "Connexion…",
+    "noAccount": "Pas encore de compte ?",
+    "createOne": "Créer un compte"
+  },
+  "Register": {
+    "title": "Créez le compte de votre famille",
+    "subtitle": "Un compte par foyer — vous pourrez inviter une nounou ou un co-parent plus tard.",
+    "familyName": "Nom de famille",
+    "familyNamePlaceholder": "Les Dupont",
+    "yourName": "Votre nom",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "submit": "Créer le compte",
+    "submitPending": "Création du compte…",
+    "haveAccount": "Vous avez déjà un compte ?",
+    "signIn": "Se connecter"
+  },
+  "AuthErrors": {
+    "familyNameRequired": "Le nom de famille est requis",
+    "nameRequired": "Votre nom est requis",
+    "emailInvalid": "Saisissez une adresse e-mail valide",
+    "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
+    "emailTaken": "Un compte existe déjà avec cette adresse e-mail",
+    "passwordRequired": "Le mot de passe est requis",
+    "invalidCredentials": "E-mail ou mot de passe incorrect",
+    "invalidInput": "Saisie invalide"
+  },
+  "Kids": {
+    "title": "Enfants",
+    "empty": "Aucun enfant pour l'instant — ajoutez le premier ci-dessous.",
+    "remove": "Supprimer",
+    "addTitle": "Ajouter un enfant",
+    "namePlaceholder": "Prénom",
+    "color": "Couleur",
+    "addButton": "Ajouter"
+  },
+  "Planner": {
+    "prev": "← Précédent",
+    "next": "Suivant →",
+    "weekOf": "Semaine du {date}",
+    "printTypicalWeek": "Imprimer la semaine type",
+    "printThisWeek": "Imprimer cette semaine",
+    "addRecurringTitle": "Ajouter une activité récurrente",
+    "addOneOffTitle": "Ajouter un événement ponctuel",
+    "kids": "Enfants",
+    "titlePlaceholderActivity": "Cours de natation",
+    "titlePlaceholderException": "Fête d'anniversaire",
+    "dayOfWeek": "Jour de la semaine",
+    "startTime": "Heure de début",
+    "endTime": "Heure de fin",
+    "locationPlaceholder": "Lieu (facultatif)",
+    "categoryPlaceholder": "Catégorie, p. ex. sport, école (facultatif)",
+    "validityHint": "Période de validité facultative — laissez vide pour une activité qui se répète indéfiniment, ou définissez une plage, p. ex. une année scolaire (sept.–sept.).",
+    "validFrom": "Valide à partir du",
+    "validTo": "Valide jusqu'au",
+    "includeInTypicalWeek": "Inclure dans le modèle « semaine type »",
+    "submitActivity": "Ajouter l'activité récurrente",
+    "date": "Date",
+    "notesPlaceholder": "Notes (facultatif)",
+    "submitException": "Ajouter l'événement ponctuel",
+    "noKidsMessage": "Aucun enfant ajouté pour l'instant — rendez-vous sur la page Enfants pour ajouter le premier."
+  },
+  "PlannerErrors": {
+    "kidRequired": "Sélectionnez au moins un enfant",
+    "validityRange": "La date de début de validité doit précéder la date de fin",
+    "invalidInput": "Saisie invalide"
+  },
+  "Print": {
+    "backToPlanner": "← Retour au planning",
+    "printButton": "Enregistrer en PDF / Imprimer",
+    "daysToInclude": "Jours à inclure",
+    "eventsToInclude": "Événements à inclure",
+    "noRecurringActivities": "Aucune activité récurrente pour l'instant.",
+    "noKidsMessage": "Ajoutez d'abord des enfants pour créer une semaine imprimable.",
+    "typicalWeek": "Semaine type"
+  },
+  "Locale": {
+    "label": "Langue",
+    "en": "English",
+    "fr": "Français",
+    "it": "Italiano",
+    "de": "Deutsch"
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "Nav": {
+    "appName": "my-kiddo-week",
+    "planner": "Planer",
+    "kids": "Kinder",
+    "signOut": "Abmelden",
+    "switchFamily": "Familie wechseln…"
+  },
+  "Login": {
+    "title": "Anmelden",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "submit": "Anmelden",
+    "submitPending": "Anmeldung…",
+    "noAccount": "Noch kein Konto?",
+    "createOne": "Konto erstellen"
+  },
+  "Register": {
+    "title": "Familienkonto erstellen",
+    "subtitle": "Ein Konto pro Haushalt — ein Kindermädchen oder Co-Elternteil kannst du später einladen.",
+    "familyName": "Familienname",
+    "familyNamePlaceholder": "Familie Müller",
+    "yourName": "Dein Name",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "submit": "Konto erstellen",
+    "submitPending": "Konto wird erstellt…",
+    "haveAccount": "Schon ein Konto?",
+    "signIn": "Anmelden"
+  },
+  "AuthErrors": {
+    "familyNameRequired": "Familienname ist erforderlich",
+    "nameRequired": "Dein Name ist erforderlich",
+    "emailInvalid": "Bitte eine gültige E-Mail-Adresse eingeben",
+    "passwordTooShort": "Das Passwort muss mindestens 8 Zeichen lang sein",
+    "emailTaken": "Es existiert bereits ein Konto mit dieser E-Mail-Adresse",
+    "passwordRequired": "Passwort ist erforderlich",
+    "invalidCredentials": "E-Mail oder Passwort ungültig",
+    "invalidInput": "Ungültige Eingabe"
+  },
+  "Kids": {
+    "title": "Kinder",
+    "empty": "Noch keine Kinder — füge unten das erste hinzu.",
+    "remove": "Entfernen",
+    "addTitle": "Kind hinzufügen",
+    "namePlaceholder": "Name",
+    "color": "Farbe",
+    "addButton": "Hinzufügen"
+  },
+  "Planner": {
+    "prev": "← Zurück",
+    "next": "Weiter →",
+    "weekOf": "Woche vom {date}",
+    "printTypicalWeek": "Typische Woche drucken",
+    "printThisWeek": "Diese Woche drucken",
+    "addRecurringTitle": "Wiederkehrende Aktivität hinzufügen",
+    "addOneOffTitle": "Einmaliges Ereignis hinzufügen",
+    "kids": "Kinder",
+    "titlePlaceholderActivity": "Schwimmkurs",
+    "titlePlaceholderException": "Geburtstagsfeier",
+    "dayOfWeek": "Wochentag",
+    "startTime": "Startzeit",
+    "endTime": "Endzeit",
+    "locationPlaceholder": "Ort (optional)",
+    "categoryPlaceholder": "Kategorie, z. B. Sport, Schule (optional)",
+    "validityHint": "Optionaler Gültigkeitszeitraum — leer lassen für eine Aktivität, die sich unbegrenzt wiederholt, oder einen Zeitraum festlegen, z. B. ein Schuljahr (Sept.–Sept.).",
+    "validFrom": "Gültig ab",
+    "validTo": "Gültig bis",
+    "includeInTypicalWeek": "In die Vorlage „typische Woche\" aufnehmen",
+    "submitActivity": "Wiederkehrende Aktivität hinzufügen",
+    "date": "Datum",
+    "notesPlaceholder": "Notizen (optional)",
+    "submitException": "Einmaliges Ereignis hinzufügen",
+    "noKidsMessage": "Noch keine Kinder hinzugefügt — auf der Seite Kinder das erste hinzufügen."
+  },
+  "PlannerErrors": {
+    "kidRequired": "Mindestens ein Kind auswählen",
+    "validityRange": "Das Gültig-ab-Datum muss vor dem Gültig-bis-Datum liegen",
+    "invalidInput": "Ungültige Eingabe"
+  },
+  "Print": {
+    "backToPlanner": "← Zurück zum Planer",
+    "printButton": "Als PDF speichern / Drucken",
+    "daysToInclude": "Einzuschließende Tage",
+    "eventsToInclude": "Einzuschließende Ereignisse",
+    "noRecurringActivities": "Noch keine wiederkehrenden Aktivitäten.",
+    "noKidsMessage": "Zuerst Kinder hinzufügen, um eine druckbare Woche zu erstellen.",
+    "typicalWeek": "Typische Woche"
+  },
+  "Locale": {
+    "label": "Sprache",
+    "en": "English",
+    "fr": "Français",
+    "it": "Italiano",
+    "de": "Deutsch"
+  }
+}

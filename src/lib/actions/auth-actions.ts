@@ -7,11 +7,26 @@ import { prisma } from "@/lib/prisma";
 import { signIn } from "@/lib/auth";
 
 const registerSchema = z.object({
-  familyName: z.string().min(1, "Family name is required"),
-  name: z.string().min(1, "Your name is required"),
-  email: z.string().email("Enter a valid email"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  familyName: z.string().min(1),
+  name: z.string().min(1),
+  email: z.string().email(),
+  password: z.string().min(8),
 });
+
+function registerErrorCode(issues: z.ZodIssue[]): string {
+  switch (issues[0]?.path[0]) {
+    case "familyName":
+      return "familyNameRequired";
+    case "name":
+      return "nameRequired";
+    case "email":
+      return "emailInvalid";
+    case "password":
+      return "passwordTooShort";
+    default:
+      return "invalidInput";
+  }
+}
 
 export async function registerAction(
   _prevState: { error?: string } | undefined,
@@ -25,14 +40,14 @@ export async function registerAction(
   });
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { error: registerErrorCode(parsed.error.issues) };
   }
 
   const { familyName, name, email, password } = parsed.data;
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
-    return { error: "An account with that email already exists" };
+    return { error: "emailTaken" };
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
@@ -56,9 +71,20 @@ export async function registerAction(
 }
 
 const loginSchema = z.object({
-  email: z.string().email("Enter a valid email"),
-  password: z.string().min(1, "Password is required"),
+  email: z.string().email(),
+  password: z.string().min(1),
 });
+
+function loginErrorCode(issues: z.ZodIssue[]): string {
+  switch (issues[0]?.path[0]) {
+    case "email":
+      return "emailInvalid";
+    case "password":
+      return "passwordRequired";
+    default:
+      return "invalidInput";
+  }
+}
 
 export async function loginAction(
   _prevState: { error?: string } | undefined,
@@ -69,7 +95,7 @@ export async function loginAction(
     password: formData.get("password"),
   });
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { error: loginErrorCode(parsed.error.issues) };
   }
 
   try {
@@ -80,7 +106,7 @@ export async function loginAction(
     });
   } catch (error) {
     if (error instanceof AuthError) {
-      return { error: "Invalid email or password" };
+      return { error: "invalidCredentials" };
     }
     throw error;
   }

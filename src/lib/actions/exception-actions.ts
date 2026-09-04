@@ -2,12 +2,13 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { getActiveMembership } from "@/lib/family";
 
 const exceptionSchema = z.object({
-  kidIds: z.array(z.string().min(1)).min(1, "Select at least one kid"),
-  title: z.string().min(1, "Title is required"),
+  kidIds: z.array(z.string().min(1)).min(1),
+  title: z.string().min(1),
   date: z.coerce.date(),
   startTime: z.string().optional(),
   endTime: z.string().optional(),
@@ -35,7 +36,11 @@ export async function createExceptionAction(formData: FormData) {
     notes: formData.get("notes") || undefined,
     category: formData.get("category") || undefined,
   });
-  if (!parsed.success) throw new Error(parsed.error.issues[0]?.message);
+  if (!parsed.success) {
+    const t = await getTranslations("PlannerErrors");
+    const path = parsed.error.issues[0]?.path[0];
+    throw new Error(path === "kidIds" ? t("kidRequired") : t("invalidInput"));
+  }
 
   await assertKidsBelongToFamily(parsed.data.kidIds, membership.familyId);
 
