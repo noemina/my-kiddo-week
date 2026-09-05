@@ -18,5 +18,11 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  // Excludes the PWA manifest and icon routes too: browsers/OSes fetch
+  // these unauthenticated when installing the app, so gating them behind
+  // login would make the manifest and icons unreachable and break
+  // installability entirely.
+  matcher: [
+    "/((?!api|_next/static|_next/image|favicon.ico|manifest.webmanifest|icon|apple-icon).*)",
+  ],
 };
