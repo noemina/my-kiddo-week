@@ -16,12 +16,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "my-kiddo-week",
+  title: "My kiddo week",
   description: "A weekly activity planner for parents",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "my-kiddo-week",
+    title: "My kiddo week",
   },
 };
 

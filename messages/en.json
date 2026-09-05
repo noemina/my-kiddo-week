@@ -1,10 +1,30 @@
 {
   "Nav": {
-    "appName": "my-kiddo-week",
+    "appName": "My kiddo week",
     "planner": "Planner",
     "kids": "Kids",
     "save": "Save plan",
     "load": "Load plan"
+  },
+  "Landing": {
+    "heroTitle": "One calm place for your kids' whole week",
+    "heroSubtitle": "Track recurring activities like school, gym, and swimming alongside one-off events like birthday parties and doctor's appointments — then print a clear weekly view for yourself, a co-parent, or a nanny.",
+    "ctaPlanner": "Open the planner",
+    "privacyTitle": "Nothing about your family leaves your browser",
+    "privacyBody": "There's no account to create and no server storing your data. Your plan — kids' names, activities, everything — lives only in this browser. Use \"Save plan\" any time to download a backup file, and \"Load plan\" to bring it back or move it to another device.",
+    "howItWorksTitle": "How it works",
+    "step1Title": "Add your kids",
+    "step1Body": "Give each kid a name and a color so their activities are easy to tell apart at a glance.",
+    "step2Title": "Plan the week",
+    "step2Body": "Add recurring activities (with an optional date range, like a school year) and one-off events like parties or appointments — assign each to one kid or several.",
+    "step3Title": "Print it out",
+    "step3Body": "Print a specific week or a dateless \"typical week\" template, laid out as a real calendar with a shared time axis and a column per kid.",
+    "step4Title": "Save your plan",
+    "step4Body": "Download your plan as a file whenever you like — it's your backup, and the way to pick up where you left off on another browser or device.",
+    "illustrationCalendarAlt": "A colorful weekly calendar with activities for two kids",
+    "illustrationPrintAlt": "A printed weekly plan coming out as a PDF",
+    "footerOpenSource": "My kiddo week is an open-source project — <repoLink>view it on GitHub</repoLink>.",
+    "footerIssues": "Found a bug, or have an idea for a feature? <issuesLink>Open an issue</issuesLink>."
   },
   "Kids": {
     "title": "Kids",

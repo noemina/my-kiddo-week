@@ -1,10 +1,30 @@
 {
   "Nav": {
-    "appName": "my-kiddo-week",
+    "appName": "My kiddo week",
     "planner": "Planning",
     "kids": "Enfants",
     "save": "Enregistrer le plan",
     "load": "Charger le plan"
+  },
+  "Landing": {
+    "heroTitle": "Un endroit calme pour toute la semaine de vos enfants",
+    "heroSubtitle": "Suivez les activités récurrentes comme l'école, le sport et la natation, ainsi que les événements ponctuels comme les fêtes d'anniversaire et les rendez-vous chez le médecin — puis imprimez une vue hebdomadaire claire pour vous-même, un coparent ou une nounou.",
+    "ctaPlanner": "Ouvrir le planning",
+    "privacyTitle": "Rien concernant votre famille ne quitte votre navigateur",
+    "privacyBody": "Il n'y a aucun compte à créer et aucun serveur ne stocke vos données. Votre plan — noms des enfants, activités, tout — vit uniquement dans ce navigateur. Utilisez « Enregistrer le plan » à tout moment pour télécharger un fichier de sauvegarde, et « Charger le plan » pour le récupérer ou le transférer sur un autre appareil.",
+    "howItWorksTitle": "Comment ça marche",
+    "step1Title": "Ajoutez vos enfants",
+    "step1Body": "Donnez à chaque enfant un nom et une couleur pour distinguer facilement leurs activités en un coup d'œil.",
+    "step2Title": "Planifiez la semaine",
+    "step2Body": "Ajoutez des activités récurrentes (avec une période de validité facultative, comme une année scolaire) et des événements ponctuels comme des fêtes ou des rendez-vous — attribuez-les à un ou plusieurs enfants.",
+    "step3Title": "Imprimez-le",
+    "step3Body": "Imprimez une semaine précise ou un modèle de « semaine type » sans date, présenté comme un vrai calendrier avec un axe temporel commun et une colonne par enfant.",
+    "step4Title": "Enregistrez votre plan",
+    "step4Body": "Téléchargez votre plan sous forme de fichier quand vous le souhaitez — c'est votre sauvegarde, et le moyen de reprendre là où vous en étiez sur un autre navigateur ou appareil.",
+    "illustrationCalendarAlt": "Un calendrier hebdomadaire coloré avec des activités pour deux enfants",
+    "illustrationPrintAlt": "Un planning hebdomadaire imprimé sortant en PDF",
+    "footerOpenSource": "My kiddo week est un projet open source — <repoLink>consultez-le sur GitHub</repoLink>.",
+    "footerIssues": "Vous avez trouvé un bug ou une idée de fonctionnalité ? <issuesLink>Ouvrez une issue</issuesLink>."
   },
   "Kids": {
     "title": "Enfants",

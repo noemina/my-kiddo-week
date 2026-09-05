@@ -1,10 +1,30 @@
 {
   "Nav": {
-    "appName": "my-kiddo-week",
+    "appName": "My kiddo week",
     "planner": "Pianificazione",
     "kids": "Bambini",
     "save": "Salva piano",
     "load": "Carica piano"
+  },
+  "Landing": {
+    "heroTitle": "Un posto tranquillo per tutta la settimana dei tuoi bambini",
+    "heroSubtitle": "Tieni traccia delle attività ricorrenti come scuola, palestra e nuoto insieme agli eventi singoli come feste di compleanno e visite mediche — poi stampa una chiara vista settimanale per te, un co-genitore o una tata.",
+    "ctaPlanner": "Apri la pianificazione",
+    "privacyTitle": "Nulla della tua famiglia lascia il tuo browser",
+    "privacyBody": "Non c'è nessun account da creare e nessun server che memorizza i tuoi dati. Il tuo piano — nomi dei bambini, attività, tutto — vive solo in questo browser. Usa \"Salva piano\" in qualsiasi momento per scaricare un file di backup, e \"Carica piano\" per recuperarlo o spostarlo su un altro dispositivo.",
+    "howItWorksTitle": "Come funziona",
+    "step1Title": "Aggiungi i tuoi bambini",
+    "step1Body": "Dai a ogni bambino un nome e un colore per distinguere facilmente le loro attività a colpo d'occhio.",
+    "step2Title": "Pianifica la settimana",
+    "step2Body": "Aggiungi attività ricorrenti (con un periodo di validità facoltativo, come un anno scolastico) ed eventi singoli come feste o visite — assegnale a uno o più bambini.",
+    "step3Title": "Stampalo",
+    "step3Body": "Stampa una settimana specifica o un modello di \"settimana tipo\" senza data, presentato come un vero calendario con un asse temporale condiviso e una colonna per bambino.",
+    "step4Title": "Salva il tuo piano",
+    "step4Body": "Scarica il tuo piano come file quando vuoi — è il tuo backup, ed è il modo per riprendere da dove avevi lasciato su un altro browser o dispositivo.",
+    "illustrationCalendarAlt": "Un calendario settimanale colorato con attività per due bambini",
+    "illustrationPrintAlt": "Un piano settimanale stampato che esce come PDF",
+    "footerOpenSource": "My kiddo week è un progetto open source — <repoLink>guardalo su GitHub</repoLink>.",
+    "footerIssues": "Hai trovato un bug o hai un'idea per una funzionalità? <issuesLink>Apri una issue</issuesLink>."
   },
   "Kids": {
     "title": "Bambini",
