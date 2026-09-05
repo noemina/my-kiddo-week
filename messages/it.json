@@ -76,7 +76,8 @@
   "PlannerErrors": {
     "kidRequired": "Seleziona almeno un bambino",
     "validityRange": "La data di inizio validità deve precedere quella di fine",
-    "invalidInput": "Dati non validi"
+    "invalidInput": "Dati non validi",
+    "dayRequired": "Seleziona almeno un giorno"
   },
   "Print": {
     "backToPlanner": "← Torna alla pianificazione",

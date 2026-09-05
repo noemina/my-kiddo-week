@@ -61,20 +61,27 @@ export default async function KidsPage() {
             placeholder={t("namePlaceholder")}
             className="rounded-md border border-gray-300 px-3 py-2"
           />
-          <label className="flex flex-col gap-1">
-            {t("color")}
-            <select
-              name="color"
-              defaultValue={DEFAULT_COLORS[kids.length % DEFAULT_COLORS.length]}
-              className="rounded-md border border-gray-300 px-3 py-2"
-            >
-              {DEFAULT_COLORS.map((color) => (
-                <option key={color} value={color}>
-                  {color}
-                </option>
+          <fieldset className="flex flex-col gap-1">
+            <legend className="mb-1">{t("color")}</legend>
+            <div className="flex flex-wrap gap-2">
+              {DEFAULT_COLORS.map((color, i) => (
+                <label key={color} className="cursor-pointer">
+                  <input
+                    type="radio"
+                    name="color"
+                    value={color}
+                    defaultChecked={i === kids.length % DEFAULT_COLORS.length}
+                    className="peer sr-only"
+                  />
+                  <span
+                    className="block h-8 w-8 rounded-full ring-1 ring-gray-200 ring-offset-2 peer-checked:ring-2 peer-checked:ring-gray-900"
+                    style={{ backgroundColor: color }}
+                    aria-hidden
+                  />
+                </label>
               ))}
-            </select>
-          </label>
+            </div>
+          </fieldset>
           <button
             type="submit"
             className="mt-1 rounded-md bg-indigo-600 px-4 py-2 font-medium text-white"

@@ -76,7 +76,8 @@
   "PlannerErrors": {
     "kidRequired": "Sélectionnez au moins un enfant",
     "validityRange": "La date de début de validité doit précéder la date de fin",
-    "invalidInput": "Saisie invalide"
+    "invalidInput": "Saisie invalide",
+    "dayRequired": "Sélectionnez au moins un jour"
   },
   "Print": {
     "backToPlanner": "← Retour au planning",

@@ -76,7 +76,8 @@
   "PlannerErrors": {
     "kidRequired": "Select at least one kid",
     "validityRange": "Valid-from date must be before valid-to date",
-    "invalidInput": "Invalid input"
+    "invalidInput": "Invalid input",
+    "dayRequired": "Select at least one day"
   },
   "Print": {
     "backToPlanner": "← Back to planner",

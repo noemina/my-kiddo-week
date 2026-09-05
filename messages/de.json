@@ -76,7 +76,8 @@
   "PlannerErrors": {
     "kidRequired": "Mindestens ein Kind auswählen",
     "validityRange": "Das Gültig-ab-Datum muss vor dem Gültig-bis-Datum liegen",
-    "invalidInput": "Ungültige Eingabe"
+    "invalidInput": "Ungültige Eingabe",
+    "dayRequired": "Mindestens einen Tag auswählen"
   },
   "Print": {
     "backToPlanner": "← Zurück zum Planer",

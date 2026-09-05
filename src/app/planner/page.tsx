@@ -82,27 +82,25 @@ export default async function PlannerPage({
                 {t("addRecurringTitle")}
               </summary>
               <form action={createActivityAction} className="mt-4 flex flex-col gap-3 text-sm">
-                <KidCheckboxes kids={kids} label={t("kids")} />
+                <CheckboxGroup
+                  label={t("kids")}
+                  name="kidIds"
+                  options={kids.map((kid) => ({ value: kid.id, label: kid.name }))}
+                />
                 <input
                   name="title"
                   required
                   placeholder={t("titlePlaceholderActivity")}
                   className="rounded-md border border-gray-300 px-3 py-2"
                 />
-                <label className="flex flex-col gap-1">
-                  {t("dayOfWeek")}
-                  <select
-                    name="dayOfWeek"
-                    required
-                    className="rounded-md border border-gray-300 px-3 py-2"
-                  >
-                    {Array.from({ length: 7 }, (_, i) => (
-                      <option key={i} value={i}>
-                        {weekdayName(i, locale)}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                <CheckboxGroup
+                  label={t("dayOfWeek")}
+                  name="daysOfWeek"
+                  options={Array.from({ length: 7 }, (_, i) => ({
+                    value: String(i),
+                    label: weekdayName(i, locale),
+                  }))}
+                />
                 <div className="flex gap-3">
                   <label className="flex flex-1 flex-col gap-1">
                     {t("startTime")}
@@ -169,7 +167,11 @@ export default async function PlannerPage({
                 {t("addOneOffTitle")}
               </summary>
               <form action={createExceptionAction} className="mt-4 flex flex-col gap-3 text-sm">
-                <KidCheckboxes kids={kids} label={t("kids")} />
+                <CheckboxGroup
+                  label={t("kids")}
+                  name="kidIds"
+                  options={kids.map((kid) => ({ value: kid.id, label: kid.name }))}
+                />
                 <input
                   name="title"
                   required
@@ -229,15 +231,23 @@ export default async function PlannerPage({
   );
 }
 
-function KidCheckboxes({ kids, label }: { kids: { id: string; name: string }[]; label: string }) {
+function CheckboxGroup({
+  label,
+  name,
+  options,
+}: {
+  label: string;
+  name: string;
+  options: { value: string; label: string }[];
+}) {
   return (
     <fieldset className="flex flex-col gap-1">
       <legend className="mb-1">{label}</legend>
       <div className="flex flex-wrap gap-3">
-        {kids.map((kid) => (
-          <label key={kid.id} className="flex items-center gap-1.5">
-            <input type="checkbox" name="kidIds" value={kid.id} />
-            {kid.name}
+        {options.map((option) => (
+          <label key={option.value} className="flex items-center gap-1.5">
+            <input type="checkbox" name={name} value={option.value} />
+            {option.label}
           </label>
         ))}
       </div>
