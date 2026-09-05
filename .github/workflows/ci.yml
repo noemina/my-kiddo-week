@@ -8,9 +8,6 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    env:
-      DATABASE_URL: "postgresql://kiddo:kiddo@localhost:5432/kiddo_week"
-      AUTH_SECRET: "ci-placeholder-secret"
     steps:
       - uses: actions/checkout@v4
 

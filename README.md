@@ -6,64 +6,34 @@ parties, doctor's appointments), shareable across multiple kids — with a
 printable calendar-style weekly PDF, including a dateless "typical week"
 template built from your recurring activities.
 
+**Local-first, no accounts.** Nothing is sent to or stored on a server: your
+plan lives entirely in your browser (`localStorage`). There's no login, no
+database, and no server-side data of any kind to worry about. Use "Save
+plan" to download your plan as a JSON file — a backup, and the way to move
+it to another browser or device — and "Load plan" to bring one back in.
+
 ## Stack
 
-- [Next.js 16](https://nextjs.org/) (App Router, TypeScript)
-- [Prisma 7](https://www.prisma.io/) + PostgreSQL
-- [Auth.js (next-auth v5)](https://authjs.dev/) — email/password accounts, one account per family
+- [Next.js 16](https://nextjs.org/) (App Router, TypeScript) — a static,
+  client-rendered app; no backend
 - [Tailwind CSS v4](https://tailwindcss.com/)
+- [next-intl](https://next-intl.dev/) — English, French, Italian, German
 - [Vitest](https://vitest.dev/) for unit tests
 
 ## Getting started
 
-1. Install dependencies:
+```bash
+npm install
+npm run dev
+```
 
-   ```bash
-   npm install
-   ```
-
-2. Copy the env file and adjust if needed:
-
-   ```bash
-   cp .env.example .env
-   ```
-
-3. Start a local Postgres database:
-
-   ```bash
-   docker compose up -d
-   ```
-
-4. Apply the database schema:
-
-   ```bash
-   npm run db:migrate
-   ```
-
-5. (Optional) Seed a demo family so you have something to click around:
-
-   ```bash
-   npm run db:seed
-   ```
-
-   This creates a demo account — sign in at `/login` with:
-
-   - email: `demo@my-kiddo-week.test`
-   - password: `demo-password-123`
-
-6. Run the dev server:
-
-   ```bash
-   npm run dev
-   ```
-
-   Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000). That's it — no database,
+no environment variables, no seed data.
 
 ## Testing the app manually
 
-- Register a new family at `/register`, or sign in with the seeded demo
-  account above.
-- Add kids on the `/kids` page.
+- Add kids on the `/kids` page (name, color, and an optional plan name shown
+  on printouts).
 - On `/planner`, add recurring activities (with an optional validity window,
   e.g. a school year running September to the next September) and one-off
   events, then navigate between weeks. An activity or event can be assigned
@@ -78,53 +48,34 @@ template built from your recurring activities.
   by side — and let you choose which days and which events to include
   before printing. Your browser's print dialog can save the result directly
   as a PDF (landscape works best, given the width).
-
-## Troubleshooting
-
-- **If `npm audit` ever reports vulnerabilities again**: check whether
-  they're transitive deps of `prisma`'s own MySQL/config tooling
-  (`mysql2`, `deepmerge-ts`) — this app only uses the Postgres adapter, so
-  those aren't in the runtime path. Patch the specific package via the
-  `overrides` field in `package.json` (pin it to a fixed version) rather
-  than running `npm audit fix --force`, which "fixes" them by downgrading
-  the direct `prisma` dependency to a `6.x` release — incompatible with
-  this project's `prisma7.config.ts` and the `@prisma/client` v7
-  driver-adapter API. If that happens anyway, restore
-  `"prisma": "^7.10.0"` in `package.json` and reinstall.
-- If a from-scratch `npm install` crashes with `Cannot read properties of
-  null (reading 'edgesOut')`, that's a known npm/arborist bug unrelated to
-  this project (hit while resolving Vitest's peer dependencies on npm
-  10.9.8). Prefer `npm ci` when a lockfile already exists — it doesn't
-  re-resolve from scratch and avoids it. Regenerating the lockfile from
-  scratch needs two passes: `npm install --legacy-peer-deps` first, then a
-  second plain `npm install` on top to complete the strict peer metadata
-  (`npm ci` needs) without crashing.
+- Use "Save plan" (top right) any time to download your current plan as a
+  `.json` file, and "Load plan" to restore one — this is also how you'd move
+  your plan to a different browser or device.
 
 ## Data model
 
-- **Family** — a household; users belong to a family via a `Membership`
-  (a user can belong to more than one family, e.g. a nanny working for two
-  households).
-- **Kid** — belongs to a family.
-- **Activity** — a recurring weekly activity (day of week + time), with an
+Everything lives in one JSON object (`PlanData`, see `src/lib/plan-store.tsx`)
+persisted to `localStorage` and mirrored by the Save/Load file:
+
+- **familyName** — an optional label shown on printouts.
+- **kids** — `{ id, name, color }`.
+- **activities** — a recurring weekly activity (day of week + time), with an
   optional `validFrom`/`validTo` window for activities that only apply for
   part of the year, and `includeInTypicalWeek` (default checked/unchecked
-  state offered on the typical-week print page). Many-to-many with `Kid` —
-  one activity can be shared by more than one kid.
-- **ActivityException** — a one-off event tied to a specific date. Also
-  many-to-many with `Kid`.
+  state offered on the typical-week print page). Can be shared by more than
+  one kid via `kidIds`.
+- **exceptions** — a one-off event tied to a specific date. Also shareable
+  via `kidIds`.
 
 ## Scripts
 
-| Script              | Purpose                                   |
-| -------------------- | ------------------------------------------ |
-| `npm run dev`        | Start the dev server                       |
-| `npm run build`      | Production build                           |
-| `npm run lint`       | ESLint                                     |
-| `npm run test`       | Vitest in watch mode                       |
-| `npm run test:run`   | Vitest, single run (used in CI)            |
-| `npm run db:migrate` | Apply Prisma migrations                    |
-| `npm run db:seed`    | Seed a demo family                         |
+| Script            | Purpose                          |
+| ----------------- | --------------------------------- |
+| `npm run dev`     | Start the dev server              |
+| `npm run build`   | Production build                  |
+| `npm run lint`    | ESLint                            |
+| `npm run test`    | Vitest in watch mode               |
+| `npm run test:run`| Vitest, single run (used in CI)   |
 
 ## CI / code quality
 
@@ -147,9 +98,10 @@ build; the Claude Code review workflow will also leave comments on the diff.
 
 ## Roadmap
 
-- **v2: External calendar sync** — push events to a caregiver's (e.g. a
-  nanny's) Google Calendar automatically via the Google Calendar API, so
-  their calendar always reflects the current week's plan.
+- **v2: External calendar sync** — an explicit, opt-in way to push events to
+  a caregiver's (e.g. a nanny's) Google Calendar, so their calendar reflects
+  the current week's plan. Local-first stays the default; sync would be an
+  add-on, not a requirement to use the app.
 
 ## License
 

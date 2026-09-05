@@ -3,49 +3,23 @@
     "appName": "my-kiddo-week",
     "planner": "Planer",
     "kids": "Kinder",
-    "signOut": "Abmelden",
-    "switchFamily": "Familie wechseln…"
-  },
-  "Login": {
-    "title": "Anmelden",
-    "email": "E-Mail",
-    "password": "Passwort",
-    "submit": "Anmelden",
-    "submitPending": "Anmeldung…",
-    "noAccount": "Noch kein Konto?",
-    "createOne": "Konto erstellen"
-  },
-  "Register": {
-    "title": "Familienkonto erstellen",
-    "subtitle": "Ein Konto pro Haushalt — ein Kindermädchen oder Co-Elternteil kannst du später einladen.",
-    "familyName": "Familienname",
-    "familyNamePlaceholder": "Familie Müller",
-    "yourName": "Dein Name",
-    "email": "E-Mail",
-    "password": "Passwort",
-    "submit": "Konto erstellen",
-    "submitPending": "Konto wird erstellt…",
-    "haveAccount": "Schon ein Konto?",
-    "signIn": "Anmelden"
-  },
-  "AuthErrors": {
-    "familyNameRequired": "Familienname ist erforderlich",
-    "nameRequired": "Dein Name ist erforderlich",
-    "emailInvalid": "Bitte eine gültige E-Mail-Adresse eingeben",
-    "passwordTooShort": "Das Passwort muss mindestens 8 Zeichen lang sein",
-    "emailTaken": "Es existiert bereits ein Konto mit dieser E-Mail-Adresse",
-    "passwordRequired": "Passwort ist erforderlich",
-    "invalidCredentials": "E-Mail oder Passwort ungültig",
-    "invalidInput": "Ungültige Eingabe"
+    "save": "Plan speichern",
+    "load": "Plan laden"
   },
   "Kids": {
     "title": "Kinder",
+    "planName": "Planname",
+    "planNamePlaceholder": "Familie Müller",
     "empty": "Noch keine Kinder — füge unten das erste hinzu.",
     "remove": "Entfernen",
     "addTitle": "Kind hinzufügen",
     "namePlaceholder": "Name",
     "color": "Farbe",
     "addButton": "Hinzufügen"
+  },
+  "Storage": {
+    "hint": "Dein Plan wird nur in diesem Browser gespeichert. Nutze „Plan speichern“/„Plan laden“ (oben rechts), um ein Backup zu erstellen oder ihn auf ein anderes Gerät zu übertragen.",
+    "importError": "Diese Datei scheint kein gültiger my-kiddo-week-Plan zu sein."
   },
   "Planner": {
     "prev": "← Zurück",

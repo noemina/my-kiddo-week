@@ -1,15 +1,27 @@
+"use client";
+
+import { useRef } from "react";
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
-import { signOut } from "@/lib/auth";
-import { getMembershipsForCurrentUser } from "@/lib/family";
-import { FamilySwitcher } from "@/components/FamilySwitcher";
+import { useTranslations } from "next-intl";
+import { usePlanStore } from "@/lib/plan-store";
 import { LocaleSwitcher } from "@/components/LocaleSwitcher";
 
-export async function AppNav({ active }: { active: "planner" | "kids" }) {
-  const [memberships, t] = await Promise.all([
-    getMembershipsForCurrentUser(),
-    getTranslations("Nav"),
-  ]);
+export function AppNav({ active }: { active: "planner" | "kids" }) {
+  const t = useTranslations("Nav");
+  const tStorage = useTranslations("Storage");
+  const { exportPlan, importPlan } = usePlanStore();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      await importPlan(file);
+    } catch {
+      alert(tStorage("importError"));
+    }
+  }
 
   return (
     <header className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 px-6 py-4">
@@ -22,10 +34,7 @@ export async function AppNav({ active }: { active: "planner" | "kids" }) {
           >
             {t("planner")}
           </Link>
-          <Link
-            href="/kids"
-            className={active === "kids" ? "text-indigo-600" : "text-gray-500"}
-          >
+          <Link href="/kids" className={active === "kids" ? "text-indigo-600" : "text-gray-500"}>
             {t("kids")}
           </Link>
         </nav>
@@ -33,17 +42,27 @@ export async function AppNav({ active }: { active: "planner" | "kids" }) {
 
       <div className="flex items-center gap-4">
         <LocaleSwitcher />
-        {memberships.length > 1 && <FamilySwitcher memberships={memberships} />}
-        <form
-          action={async () => {
-            "use server";
-            await signOut({ redirectTo: "/login" });
-          }}
+        <button
+          type="button"
+          onClick={exportPlan}
+          className="text-sm font-medium text-gray-700 hover:text-gray-900"
         >
-          <button type="submit" className="text-sm text-gray-500 hover:text-gray-800">
-            {t("signOut")}
-          </button>
-        </form>
+          {t("save")}
+        </button>
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          className="text-sm font-medium text-gray-700 hover:text-gray-900"
+        >
+          {t("load")}
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/json"
+          className="hidden"
+          onChange={handleFileChange}
+        />
       </div>
     </header>
   );

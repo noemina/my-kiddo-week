@@ -1,32 +1,47 @@
-import { redirect } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+"use client";
+
+import { type FormEvent } from "react";
+import { useTranslations } from "next-intl";
 import { AppNav } from "@/components/AppNav";
-import { getActiveMembership } from "@/lib/family";
-import { prisma } from "@/lib/prisma";
-import { createKidAction, deleteKidAction } from "@/lib/actions/kid-actions";
+import { usePlanStore } from "@/lib/plan-store";
 
 const DEFAULT_COLORS = ["#6366f1", "#ec4899", "#10b981", "#f59e0b", "#3b82f6", "#ef4444"];
 
-export default async function KidsPage() {
-  const membership = await getActiveMembership();
-  if (!membership) redirect("/login");
+export default function KidsPage() {
+  const t = useTranslations("Kids");
+  const tStorage = useTranslations("Storage");
+  const { plan, setFamilyName, addKid, removeKid } = usePlanStore();
 
-  const [kids, t] = await Promise.all([
-    prisma.kid.findMany({
-      where: { familyId: membership.familyId },
-      orderBy: { createdAt: "asc" },
-    }),
-    getTranslations("Kids"),
-  ]);
+  function handleAddKid(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const name = String(data.get("name") ?? "").trim();
+    const color = String(data.get("color") ?? DEFAULT_COLORS[0]);
+    if (!name) return;
+    addKid({ name, color });
+    form.reset();
+  }
 
   return (
     <>
       <AppNav active="kids" />
       <main className="mx-auto max-w-2xl px-6 py-8">
         <h1 className="text-lg font-semibold">{t("title")}</h1>
+        <p className="mt-1 text-xs text-gray-500">{tStorage("hint")}</p>
+
+        <label className="mt-4 flex flex-col gap-1 text-sm">
+          {t("planName")}
+          <input
+            defaultValue={plan.familyName}
+            onBlur={(e) => setFamilyName(e.target.value.trim())}
+            placeholder={t("planNamePlaceholder")}
+            className="rounded-md border border-gray-300 px-3 py-2"
+          />
+        </label>
 
         <ul className="mt-6 flex flex-col gap-2">
-          {kids.map((kid) => (
+          {plan.kids.map((kid) => (
             <li
               key={kid.id}
               className="flex items-center justify-between rounded-md border border-gray-200 px-4 py-3"
@@ -39,19 +54,20 @@ export default async function KidsPage() {
                 />
                 <span className="font-medium">{kid.name}</span>
               </div>
-              <form action={deleteKidAction}>
-                <input type="hidden" name="kidId" value={kid.id} />
-                <button type="submit" className="text-sm text-gray-400 hover:text-red-600">
-                  {t("remove")}
-                </button>
-              </form>
+              <button
+                type="button"
+                onClick={() => removeKid(kid.id)}
+                className="text-sm text-gray-400 hover:text-red-600"
+              >
+                {t("remove")}
+              </button>
             </li>
           ))}
-          {kids.length === 0 && <p className="text-sm text-gray-500">{t("empty")}</p>}
+          {plan.kids.length === 0 && <p className="text-sm text-gray-500">{t("empty")}</p>}
         </ul>
 
         <form
-          action={createKidAction}
+          onSubmit={handleAddKid}
           className="mt-8 flex flex-col gap-3 rounded-md border border-gray-200 p-4 text-sm"
         >
           <h2 className="font-semibold">{t("addTitle")}</h2>
@@ -70,7 +86,7 @@ export default async function KidsPage() {
                     type="radio"
                     name="color"
                     value={color}
-                    defaultChecked={i === kids.length % DEFAULT_COLORS.length}
+                    defaultChecked={i === plan.kids.length % DEFAULT_COLORS.length}
                     className="peer sr-only"
                   />
                   <span

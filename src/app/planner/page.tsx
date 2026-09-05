@@ -1,37 +1,93 @@
+"use client";
+
+import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { getLocale, getTranslations } from "next-intl/server";
+import { useLocale, useTranslations } from "next-intl";
 import { AppNav } from "@/components/AppNav";
 import { WeekGrid } from "@/components/WeekGrid";
-import { getActiveMembership } from "@/lib/family";
+import { usePlanStore } from "@/lib/plan-store";
 import { getWeekSchedule } from "@/lib/planner-data";
 import { addDays, formatDayHeader, isoDate, startOfWeek, weekdayName } from "@/lib/week";
-import { prisma } from "@/lib/prisma";
-import { createActivityAction } from "@/lib/actions/activity-actions";
-import { createExceptionAction } from "@/lib/actions/exception-actions";
 
-export default async function PlannerPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ week?: string }>;
-}) {
-  const membership = await getActiveMembership();
-  if (!membership) redirect("/login");
+export default function PlannerPage() {
+  const t = useTranslations("Planner");
+  const tErr = useTranslations("PlannerErrors");
+  const locale = useLocale();
+  const { plan, addActivity, removeActivity, addException, removeException } = usePlanStore();
+  const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()));
+  const [activityError, setActivityError] = useState<string | null>(null);
+  const [exceptionError, setExceptionError] = useState<string | null>(null);
 
-  const { week } = await searchParams;
-  const weekStart = startOfWeek(week ? new Date(week) : new Date());
-  const prevWeek = isoDate(addDays(weekStart, -7));
-  const nextWeek = isoDate(addDays(weekStart, 7));
+  const schedule = getWeekSchedule(plan, weekStart);
 
-  const [schedule, kids, locale, t] = await Promise.all([
-    getWeekSchedule(membership.familyId, weekStart),
-    prisma.kid.findMany({
-      where: { familyId: membership.familyId },
-      orderBy: { createdAt: "asc" },
-    }),
-    getLocale(),
-    getTranslations("Planner"),
-  ]);
+  function handleCreateActivity(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const kidIds = data.getAll("kidIds") as string[];
+    const daysOfWeek = data.getAll("daysOfWeek").map(Number);
+    const title = String(data.get("title") ?? "").trim();
+    const startTime = String(data.get("startTime") ?? "");
+    const endTime = String(data.get("endTime") ?? "").trim() || null;
+    const location = String(data.get("location") ?? "").trim() || null;
+    const category = String(data.get("category") ?? "").trim() || null;
+    const validFrom = String(data.get("validFrom") ?? "").trim() || null;
+    const validTo = String(data.get("validTo") ?? "").trim() || null;
+    const includeInTypicalWeek = data.get("includeInTypicalWeek") === "on";
+
+    if (kidIds.length === 0) return setActivityError(tErr("kidRequired"));
+    if (daysOfWeek.length === 0) return setActivityError(tErr("dayRequired"));
+    if (!title || !startTime) return setActivityError(tErr("invalidInput"));
+    if (validFrom && validTo && validFrom > validTo) return setActivityError(tErr("validityRange"));
+
+    for (const dayOfWeek of daysOfWeek) {
+      addActivity({
+        title,
+        dayOfWeek,
+        startTime,
+        endTime,
+        location,
+        category,
+        color: null,
+        validFrom,
+        validTo,
+        includeInTypicalWeek,
+        kidIds,
+      });
+    }
+    setActivityError(null);
+    form.reset();
+  }
+
+  function handleCreateException(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const kidIds = data.getAll("kidIds") as string[];
+    const title = String(data.get("title") ?? "").trim();
+    const date = String(data.get("date") ?? "");
+    const startTime = String(data.get("startTime") ?? "").trim() || null;
+    const endTime = String(data.get("endTime") ?? "").trim() || null;
+    const location = String(data.get("location") ?? "").trim() || null;
+    const notes = String(data.get("notes") ?? "").trim() || null;
+
+    if (kidIds.length === 0) return setExceptionError(tErr("kidRequired"));
+    if (!title || !date) return setExceptionError(tErr("invalidInput"));
+
+    addException({
+      title,
+      date,
+      startTime,
+      endTime,
+      location,
+      notes,
+      category: null,
+      color: null,
+      kidIds,
+    });
+    setExceptionError(null);
+    form.reset();
+  }
 
   return (
     <>
@@ -39,21 +95,23 @@ export default async function PlannerPage({
       <main className="mx-auto max-w-6xl px-6 py-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Link
-              href={`/planner?week=${prevWeek}`}
+            <button
+              type="button"
+              onClick={() => setWeekStart((w) => addDays(w, -7))}
               className="rounded-md border border-gray-300 px-3 py-1 text-sm"
             >
               {t("prev")}
-            </Link>
+            </button>
             <h1 className="text-lg font-semibold">
               {t("weekOf", { date: formatDayHeader(weekStart, locale) })}
             </h1>
-            <Link
-              href={`/planner?week=${nextWeek}`}
+            <button
+              type="button"
+              onClick={() => setWeekStart((w) => addDays(w, 7))}
               className="rounded-md border border-gray-300 px-3 py-1 text-sm"
             >
               {t("next")}
-            </Link>
+            </button>
           </div>
           <div className="flex gap-2">
             <Link
@@ -72,20 +130,26 @@ export default async function PlannerPage({
         </div>
 
         <div className="mt-6">
-          <WeekGrid schedule={schedule} noKidsMessage={t("noKidsMessage")} />
+          <WeekGrid
+            schedule={schedule}
+            noKidsMessage={t("noKidsMessage")}
+            onDeleteEntry={(entry) =>
+              entry.kind === "recurring" ? removeActivity(entry.id) : removeException(entry.id)
+            }
+          />
         </div>
 
-        {kids.length > 0 && (
+        {plan.kids.length > 0 && (
           <div className="mt-10 grid gap-6 sm:grid-cols-2">
             <details className="rounded-md border border-gray-200 p-4">
               <summary className="cursor-pointer text-sm font-semibold">
                 {t("addRecurringTitle")}
               </summary>
-              <form action={createActivityAction} className="mt-4 flex flex-col gap-3 text-sm">
+              <form onSubmit={handleCreateActivity} className="mt-4 flex flex-col gap-3 text-sm">
                 <CheckboxGroup
                   label={t("kids")}
                   name="kidIds"
-                  options={kids.map((kid) => ({ value: kid.id, label: kid.name }))}
+                  options={plan.kids.map((kid) => ({ value: kid.id, label: kid.name }))}
                 />
                 <input
                   name="title"
@@ -153,6 +217,7 @@ export default async function PlannerPage({
                   <input type="checkbox" name="includeInTypicalWeek" defaultChecked />
                   {t("includeInTypicalWeek")}
                 </label>
+                {activityError && <p className="text-red-600">{activityError}</p>}
                 <button
                   type="submit"
                   className="mt-1 rounded-md bg-indigo-600 px-4 py-2 font-medium text-white"
@@ -166,11 +231,11 @@ export default async function PlannerPage({
               <summary className="cursor-pointer text-sm font-semibold">
                 {t("addOneOffTitle")}
               </summary>
-              <form action={createExceptionAction} className="mt-4 flex flex-col gap-3 text-sm">
+              <form onSubmit={handleCreateException} className="mt-4 flex flex-col gap-3 text-sm">
                 <CheckboxGroup
                   label={t("kids")}
                   name="kidIds"
-                  options={kids.map((kid) => ({ value: kid.id, label: kid.name }))}
+                  options={plan.kids.map((kid) => ({ value: kid.id, label: kid.name }))}
                 />
                 <input
                   name="title"
@@ -216,6 +281,7 @@ export default async function PlannerPage({
                   placeholder={t("notesPlaceholder")}
                   className="rounded-md border border-gray-300 px-3 py-2"
                 />
+                {exceptionError && <p className="text-red-600">{exceptionError}</p>}
                 <button
                   type="submit"
                   className="mt-1 rounded-md bg-indigo-600 px-4 py-2 font-medium text-white"

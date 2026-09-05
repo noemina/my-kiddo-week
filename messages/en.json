@@ -3,49 +3,23 @@
     "appName": "my-kiddo-week",
     "planner": "Planner",
     "kids": "Kids",
-    "signOut": "Sign out",
-    "switchFamily": "Switch family…"
-  },
-  "Login": {
-    "title": "Sign in",
-    "email": "Email",
-    "password": "Password",
-    "submit": "Sign in",
-    "submitPending": "Signing in…",
-    "noAccount": "No account yet?",
-    "createOne": "Create one"
-  },
-  "Register": {
-    "title": "Create your family account",
-    "subtitle": "One account per household — you can invite a nanny or co-parent later.",
-    "familyName": "Family name",
-    "familyNamePlaceholder": "The Smiths",
-    "yourName": "Your name",
-    "email": "Email",
-    "password": "Password",
-    "submit": "Create account",
-    "submitPending": "Creating account…",
-    "haveAccount": "Already have an account?",
-    "signIn": "Sign in"
-  },
-  "AuthErrors": {
-    "familyNameRequired": "Family name is required",
-    "nameRequired": "Your name is required",
-    "emailInvalid": "Enter a valid email",
-    "passwordTooShort": "Password must be at least 8 characters",
-    "emailTaken": "An account with that email already exists",
-    "passwordRequired": "Password is required",
-    "invalidCredentials": "Invalid email or password",
-    "invalidInput": "Invalid input"
+    "save": "Save plan",
+    "load": "Load plan"
   },
   "Kids": {
     "title": "Kids",
+    "planName": "Plan name",
+    "planNamePlaceholder": "The Smiths",
     "empty": "No kids yet — add your first one below.",
     "remove": "Remove",
     "addTitle": "Add a kid",
     "namePlaceholder": "Name",
     "color": "Color",
     "addButton": "Add kid"
+  },
+  "Storage": {
+    "hint": "Your plan is saved only in this browser. Use Save plan/Load plan (top right) to back it up or move it to another device.",
+    "importError": "That file doesn't look like a valid my-kiddo-week plan."
   },
   "Planner": {
     "prev": "← Prev",

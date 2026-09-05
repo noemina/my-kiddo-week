@@ -1,5 +1,5 @@
-import { prisma } from "@/lib/prisma";
-import { addDays, isoDate, weekDays } from "@/lib/week";
+import { weekDays, isoDate } from "@/lib/week";
+import type { PlanData } from "@/lib/plan-store";
 
 export type ScheduleEntry = {
   id: string;
@@ -37,41 +37,22 @@ export function isActiveOn(
   return true;
 }
 
-export async function getWeekSchedule(
-  familyId: string,
-  weekStart: Date
-): Promise<KidSchedule[]> {
-  const kids = await prisma.kid.findMany({
-    where: { familyId },
-    orderBy: { createdAt: "asc" },
-  });
+function toDate(value: string | null): Date | null {
+  return value ? new Date(value) : null;
+}
 
-  const weekEnd = addDays(weekStart, 7);
-  const [activities, exceptions] = await Promise.all([
-    prisma.activity.findMany({
-      where: { kids: { some: { familyId } } },
-      include: { kids: true },
-    }),
-    prisma.activityException.findMany({
-      where: {
-        kids: { some: { familyId } },
-        date: { gte: weekStart, lt: weekEnd },
-      },
-      include: { kids: true },
-    }),
-  ]);
-
+export function getWeekSchedule(plan: PlanData, weekStart: Date): KidSchedule[] {
   const days = weekDays(weekStart);
 
-  return kids.map((kid) => ({
+  return plan.kids.map((kid) => ({
     kid: { id: kid.id, name: kid.name, color: kid.color },
     days: days.map((date, dayIndex) => {
-      const recurring: ScheduleEntry[] = activities
+      const recurring: ScheduleEntry[] = plan.activities
         .filter(
           (a) =>
             a.dayOfWeek === dayIndex &&
-            isActiveOn(a, date) &&
-            a.kids.some((k) => k.id === kid.id)
+            a.kidIds.includes(kid.id) &&
+            isActiveOn({ validFrom: toDate(a.validFrom), validTo: toDate(a.validTo) }, date)
         )
         .map((a) => ({
           id: a.id,
@@ -81,13 +62,11 @@ export async function getWeekSchedule(
           location: a.location,
           category: a.category,
           color: a.color ?? kid.color,
-          kind: "recurring",
+          kind: "recurring" as const,
         }));
 
-      const oneOff: ScheduleEntry[] = exceptions
-        .filter(
-          (e) => isoDate(e.date) === isoDate(date) && e.kids.some((k) => k.id === kid.id)
-        )
+      const oneOff: ScheduleEntry[] = plan.exceptions
+        .filter((e) => e.kidIds.includes(kid.id) && e.date === isoDate(date))
         .map((e) => ({
           id: e.id,
           title: e.title,
@@ -96,7 +75,7 @@ export async function getWeekSchedule(
           location: e.location,
           category: e.category,
           color: e.color ?? kid.color,
-          kind: "exception",
+          kind: "exception" as const,
         }));
 
       return {
@@ -122,34 +101,21 @@ export type PrintInstance = {
   defaultChecked: boolean;
 };
 
+function firstKidColor(plan: PlanData, kidIds: string[]): string | undefined {
+  return plan.kids.find((k) => kidIds.includes(k.id))?.color;
+}
+
 /** Flat, print-oriented view of a specific calendar week (recurring occurrences + exceptions). */
-export async function getDatedPrintData(
-  familyId: string,
+export function getDatedPrintData(
+  plan: PlanData,
   weekStart: Date
-): Promise<{ kids: PrintKid[]; instances: PrintInstance[] }> {
-  const weekEnd = addDays(weekStart, 7);
+): { kids: PrintKid[]; instances: PrintInstance[] } {
   const days = weekDays(weekStart);
-
-  const [kids, activities, exceptions] = await Promise.all([
-    prisma.kid.findMany({ where: { familyId }, orderBy: { createdAt: "asc" } }),
-    prisma.activity.findMany({
-      where: { kids: { some: { familyId } } },
-      include: { kids: true },
-    }),
-    prisma.activityException.findMany({
-      where: {
-        kids: { some: { familyId } },
-        date: { gte: weekStart, lt: weekEnd },
-      },
-      include: { kids: true },
-    }),
-  ]);
-
   const instances: PrintInstance[] = [];
 
-  for (const a of activities) {
+  for (const a of plan.activities) {
     const date = days[a.dayOfWeek];
-    if (!isActiveOn(a, date)) continue;
+    if (!isActiveOn({ validFrom: toDate(a.validFrom), validTo: toDate(a.validTo) }, date)) continue;
     instances.push({
       id: a.id,
       kind: "recurring",
@@ -157,15 +123,15 @@ export async function getDatedPrintData(
       startTime: a.startTime,
       endTime: a.endTime,
       location: a.location,
-      color: a.color ?? a.kids[0]?.color ?? "#6366f1",
+      color: a.color ?? firstKidColor(plan, a.kidIds) ?? "#6366f1",
       dayIndex: a.dayOfWeek,
-      kidIds: a.kids.map((k) => k.id),
+      kidIds: a.kidIds,
       defaultChecked: true,
     });
   }
 
-  for (const e of exceptions) {
-    const dayIndex = days.findIndex((d) => isoDate(d) === isoDate(e.date));
+  for (const e of plan.exceptions) {
+    const dayIndex = days.findIndex((d) => isoDate(d) === e.date);
     if (dayIndex === -1) continue;
     instances.push({
       id: e.id,
@@ -174,42 +140,34 @@ export async function getDatedPrintData(
       startTime: e.startTime,
       endTime: e.endTime,
       location: e.location,
-      color: e.color ?? e.kids[0]?.color ?? "#6366f1",
+      color: e.color ?? firstKidColor(plan, e.kidIds) ?? "#6366f1",
       dayIndex,
-      kidIds: e.kids.map((k) => k.id),
+      kidIds: e.kidIds,
       defaultChecked: true,
     });
   }
 
-  return { kids: kids.map((k) => ({ id: k.id, name: k.name, color: k.color })), instances };
+  return { kids: plan.kids.map((k) => ({ id: k.id, name: k.name, color: k.color })), instances };
 }
 
 /** Dateless "typical week" template — recurring activities only, one instance per weekday slot. */
-export async function getTypicalWeekData(
-  familyId: string
-): Promise<{ kids: PrintKid[]; instances: PrintInstance[] }> {
+export function getTypicalWeekData(plan: PlanData): { kids: PrintKid[]; instances: PrintInstance[] } {
   const today = new Date();
 
-  const [kids, activities] = await Promise.all([
-    prisma.kid.findMany({ where: { familyId }, orderBy: { createdAt: "asc" } }),
-    prisma.activity.findMany({
-      where: { kids: { some: { familyId } } },
-      include: { kids: true },
-    }),
-  ]);
-
-  const instances: PrintInstance[] = activities.map((a) => ({
+  const instances: PrintInstance[] = plan.activities.map((a) => ({
     id: a.id,
     kind: "recurring",
     title: a.title,
     startTime: a.startTime,
     endTime: a.endTime,
     location: a.location,
-    color: a.color ?? a.kids[0]?.color ?? "#6366f1",
+    color: a.color ?? firstKidColor(plan, a.kidIds) ?? "#6366f1",
     dayIndex: a.dayOfWeek,
-    kidIds: a.kids.map((k) => k.id),
-    defaultChecked: a.includeInTypicalWeek && isActiveOn(a, today),
+    kidIds: a.kidIds,
+    defaultChecked:
+      a.includeInTypicalWeek &&
+      isActiveOn({ validFrom: toDate(a.validFrom), validTo: toDate(a.validTo) }, today),
   }));
 
-  return { kids: kids.map((k) => ({ id: k.id, name: k.name, color: k.color })), instances };
+  return { kids: plan.kids.map((k) => ({ id: k.id, name: k.name, color: k.color })), instances };
 }

@@ -1,25 +1,22 @@
-import { redirect } from "next/navigation";
-import { getLocale, getTranslations } from "next-intl/server";
+"use client";
+
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { PrintWeekView } from "@/components/PrintWeekView";
-import { getActiveMembership } from "@/lib/family";
+import { usePlanStore } from "@/lib/plan-store";
 import { getDatedPrintData } from "@/lib/planner-data";
 import { formatDayHeader, startOfWeek, weekDays, weekdayName } from "@/lib/week";
 
-export default async function PlannerPrintPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ week?: string }>;
-}) {
-  const membership = await getActiveMembership();
-  if (!membership) redirect("/login");
+function PlannerPrintPageInner() {
+  const searchParams = useSearchParams();
+  const locale = useLocale();
+  const t = useTranslations("Planner");
+  const { plan } = usePlanStore();
 
-  const { week } = await searchParams;
+  const week = searchParams.get("week") ?? undefined;
   const weekStart = startOfWeek(week ? new Date(week) : new Date());
-  const [{ kids, instances }, locale, t] = await Promise.all([
-    getDatedPrintData(membership.familyId, weekStart),
-    getLocale(),
-    getTranslations("Planner"),
-  ]);
+  const { kids, instances } = getDatedPrintData(plan, weekStart);
 
   const dayLabels = weekDays(weekStart).map(
     (date, i) => `${weekdayName(i, locale, "short")}, ${formatDayHeader(date, locale)}`
@@ -28,12 +25,20 @@ export default async function PlannerPrintPage({
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-8 print:max-w-none print:w-full print:px-2 print:py-2">
       <PrintWeekView
-        familyName={membership.family.name}
+        familyName={plan.familyName}
         weekLabel={t("weekOf", { date: formatDayHeader(weekStart, locale) })}
         kids={kids}
         instances={instances}
         dayLabels={dayLabels}
       />
     </main>
+  );
+}
+
+export default function PlannerPrintPage() {
+  return (
+    <Suspense>
+      <PlannerPrintPageInner />
+    </Suspense>
   );
 }

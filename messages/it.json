@@ -3,49 +3,23 @@
     "appName": "my-kiddo-week",
     "planner": "Pianificazione",
     "kids": "Bambini",
-    "signOut": "Esci",
-    "switchFamily": "Cambia famiglia…"
-  },
-  "Login": {
-    "title": "Accedi",
-    "email": "E-mail",
-    "password": "Password",
-    "submit": "Accedi",
-    "submitPending": "Accesso in corso…",
-    "noAccount": "Non hai ancora un account?",
-    "createOne": "Creane uno"
-  },
-  "Register": {
-    "title": "Crea l'account della tua famiglia",
-    "subtitle": "Un account per famiglia — potrai invitare una tata o un co-genitore in seguito.",
-    "familyName": "Nome della famiglia",
-    "familyNamePlaceholder": "I Rossi",
-    "yourName": "Il tuo nome",
-    "email": "E-mail",
-    "password": "Password",
-    "submit": "Crea account",
-    "submitPending": "Creazione account…",
-    "haveAccount": "Hai già un account?",
-    "signIn": "Accedi"
-  },
-  "AuthErrors": {
-    "familyNameRequired": "Il nome della famiglia è obbligatorio",
-    "nameRequired": "Il tuo nome è obbligatorio",
-    "emailInvalid": "Inserisci un indirizzo e-mail valido",
-    "passwordTooShort": "La password deve contenere almeno 8 caratteri",
-    "emailTaken": "Esiste già un account con questa e-mail",
-    "passwordRequired": "La password è obbligatoria",
-    "invalidCredentials": "E-mail o password non validi",
-    "invalidInput": "Dati non validi"
+    "save": "Salva piano",
+    "load": "Carica piano"
   },
   "Kids": {
     "title": "Bambini",
+    "planName": "Nome del piano",
+    "planNamePlaceholder": "I Rossi",
     "empty": "Ancora nessun bambino — aggiungi il primo qui sotto.",
     "remove": "Rimuovi",
     "addTitle": "Aggiungi un bambino",
     "namePlaceholder": "Nome",
     "color": "Colore",
     "addButton": "Aggiungi"
+  },
+  "Storage": {
+    "hint": "Il tuo piano è salvato solo in questo browser. Usa \"Salva piano\"/\"Carica piano\" (in alto a destra) per farne una copia di sicurezza o spostarlo su un altro dispositivo.",
+    "importError": "Questo file non sembra essere un piano my-kiddo-week valido."
   },
   "Planner": {
     "prev": "← Precedente",

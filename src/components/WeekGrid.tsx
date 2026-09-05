@@ -1,10 +1,18 @@
-import { getLocale } from "next-intl/server";
+"use client";
+
+import { useLocale } from "next-intl";
 import { formatDayHeader, weekdayName } from "@/lib/week";
 import type { KidSchedule, ScheduleEntry } from "@/lib/planner-data";
-import { deleteActivityAction } from "@/lib/actions/activity-actions";
-import { deleteExceptionAction } from "@/lib/actions/exception-actions";
 
-function EntryRow({ entry, interactive }: { entry: ScheduleEntry; interactive: boolean }) {
+function EntryRow({
+  entry,
+  interactive,
+  onDelete,
+}: {
+  entry: ScheduleEntry;
+  interactive: boolean;
+  onDelete?: (entry: ScheduleEntry) => void;
+}) {
   const time = entry.startTime
     ? entry.endTime
       ? `${entry.startTime}–${entry.endTime}`
@@ -23,42 +31,37 @@ function EntryRow({ entry, interactive }: { entry: ScheduleEntry; interactive: b
           {entry.location && <p className="text-gray-500">{entry.location}</p>}
         </div>
         {interactive && (
-          <form
-            action={entry.kind === "recurring" ? deleteActivityAction : deleteExceptionAction}
+          <button
+            type="button"
+            onClick={() => onDelete?.(entry)}
+            aria-label={`Delete ${entry.title}`}
+            className="text-gray-400 hover:text-red-600 print:hidden"
           >
-            <input
-              type="hidden"
-              name={entry.kind === "recurring" ? "activityId" : "exceptionId"}
-              value={entry.id}
-            />
-            <button
-              type="submit"
-              aria-label={`Delete ${entry.title}`}
-              className="text-gray-400 hover:text-red-600 print:hidden"
-            >
-              ×
-            </button>
-          </form>
+            ×
+          </button>
         )}
       </div>
     </li>
   );
 }
 
-export async function WeekGrid({
+export function WeekGrid({
   schedule,
   interactive = true,
   noKidsMessage,
+  onDeleteEntry,
 }: {
   schedule: KidSchedule[];
   interactive?: boolean;
   noKidsMessage: string;
+  onDeleteEntry?: (entry: ScheduleEntry) => void;
 }) {
+  const locale = useLocale();
+
   if (schedule.length === 0) {
     return <p className="text-sm text-gray-500">{noKidsMessage}</p>;
   }
 
-  const locale = await getLocale();
   const days = schedule[0].days;
 
   return (
@@ -80,7 +83,12 @@ export async function WeekGrid({
               </p>
               <ul className="flex flex-col gap-1">
                 {kidSchedule.days[dayIndex].entries.map((entry) => (
-                  <EntryRow key={entry.id} entry={entry} interactive={interactive} />
+                  <EntryRow
+                    key={entry.id}
+                    entry={entry}
+                    interactive={interactive}
+                    onDelete={onDeleteEntry}
+                  />
                 ))}
               </ul>
             </div>
