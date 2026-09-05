@@ -43,3 +43,8 @@ next-env.d.ts
 # Claude Code local session files
 /.claude/
 /.mcp.json
+
+# Third-party agent reference docs auto-fetched by `vercel install` for
+# marketplace integrations (e.g. Neon) — regenerable, not our code.
+/.agents/
+/skills-lock.json
