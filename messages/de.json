@@ -4,7 +4,9 @@
     "planner": "Planer",
     "kids": "Kinder",
     "save": "Plan speichern",
-    "load": "Plan laden"
+    "load": "Plan laden",
+    "clearAll": "Alles löschen",
+    "clearAllConfirm": "Dadurch werden alle Kinder, Aktivitäten und Termine aus diesem Browser dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden. Fortfahren?"
   },
   "Landing": {
     "heroTitle": "Ein ruhiger Ort für die ganze Woche deiner Kinder",
@@ -57,6 +59,8 @@
     "endTime": "Endzeit",
     "locationPlaceholder": "Ort (optional)",
     "categoryPlaceholder": "Kategorie, z. B. Sport, Schule (optional)",
+    "color": "Farbe",
+    "colorAuto": "Automatisch die Farbe des Kindes verwenden",
     "validityHint": "Optionaler Gültigkeitszeitraum — leer lassen für eine Aktivität, die sich unbegrenzt wiederholt, oder einen Zeitraum festlegen, z. B. ein Schuljahr (Sept.–Sept.).",
     "validFrom": "Gültig ab",
     "validTo": "Gültig bis",

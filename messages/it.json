@@ -4,7 +4,9 @@
     "planner": "Pianificazione",
     "kids": "Bambini",
     "save": "Salva piano",
-    "load": "Carica piano"
+    "load": "Carica piano",
+    "clearAll": "Cancella tutto",
+    "clearAllConfirm": "Questo eliminerà definitivamente tutti i bambini, le attività e gli eventi da questo browser. L'operazione non può essere annullata. Continuare?"
   },
   "Landing": {
     "heroTitle": "Un posto tranquillo per tutta la settimana dei tuoi bambini",
@@ -57,6 +59,8 @@
     "endTime": "Ora di fine",
     "locationPlaceholder": "Luogo (facoltativo)",
     "categoryPlaceholder": "Categoria, es. sport, scuola (facoltativo)",
+    "color": "Colore",
+    "colorAuto": "Usa automaticamente il colore del bambino",
     "validityHint": "Periodo di validità facoltativo — lascia vuoto per un'attività che si ripete indefinitamente, oppure imposta un intervallo, es. un anno scolastico (sett.–sett.).",
     "validFrom": "Valida dal",
     "validTo": "Valida fino al",

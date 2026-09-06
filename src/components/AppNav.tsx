@@ -10,7 +10,7 @@ import { Logo } from "@/components/Logo";
 export function AppNav({ active }: { active: "planner" | "kids" }) {
   const t = useTranslations("Nav");
   const tStorage = useTranslations("Storage");
-  const { exportPlan, importPlan } = usePlanStore();
+  const { exportPlan, importPlan, clearPlan } = usePlanStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -21,6 +21,12 @@ export function AppNav({ active }: { active: "planner" | "kids" }) {
       await importPlan(file);
     } catch {
       alert(tStorage("importError"));
+    }
+  }
+
+  function handleClearAll() {
+    if (window.confirm(t("clearAllConfirm"))) {
+      clearPlan();
     }
   }
 
@@ -67,6 +73,13 @@ export function AppNav({ active }: { active: "planner" | "kids" }) {
           className="hidden"
           onChange={handleFileChange}
         />
+        <button
+          type="button"
+          onClick={handleClearAll}
+          className="text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+        >
+          {t("clearAll")}
+        </button>
       </div>
     </header>
   );

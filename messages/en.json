@@ -4,7 +4,9 @@
     "planner": "Planner",
     "kids": "Kids",
     "save": "Save plan",
-    "load": "Load plan"
+    "load": "Load plan",
+    "clearAll": "Clear all data",
+    "clearAllConfirm": "This will permanently delete all kids, activities, and events from this browser. This can't be undone. Continue?"
   },
   "Landing": {
     "heroTitle": "One calm place for your kids' whole week",
@@ -57,6 +59,8 @@
     "endTime": "End time",
     "locationPlaceholder": "Location (optional)",
     "categoryPlaceholder": "Category, e.g. gym, school (optional)",
+    "color": "Color",
+    "colorAuto": "Match the kid's color automatically",
     "validityHint": "Optional validity period — leave blank for an activity that repeats indefinitely, or set a range for e.g. a school year (Sept–Sept).",
     "validFrom": "Valid from",
     "validTo": "Valid to",

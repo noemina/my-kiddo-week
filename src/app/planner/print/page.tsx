@@ -12,7 +12,7 @@ function PlannerPrintPageInner() {
   const searchParams = useSearchParams();
   const locale = useLocale();
   const t = useTranslations("Planner");
-  const { plan } = usePlanStore();
+  const { plan, hydrated } = usePlanStore();
 
   const week = searchParams.get("week") ?? undefined;
   const weekStart = startOfWeek(week ? new Date(week) : new Date());
@@ -22,8 +22,14 @@ function PlannerPrintPageInner() {
     (date, i) => `${weekdayName(i, locale, "short")}, ${formatDayHeader(date, locale)}`
   );
 
+  // PrintWeekView's checkbox state is initialized once from `instances` at
+  // mount — on a direct/hard-refreshed load, localStorage hasn't finished
+  // loading yet on the very first render, so mounting it before `hydrated`
+  // would permanently lock every event's pre-check state to "off".
+  if (!hydrated) return null;
+
   return (
-    <main className="mx-auto w-full max-w-6xl px-6 py-8 print:max-w-none print:w-full print:px-2 print:py-2">
+    <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-8 print:max-w-none print:w-full print:px-2 print:py-2">
       <PrintWeekView
         familyName={plan.familyName}
         weekLabel={t("weekOf", { date: formatDayHeader(weekStart, locale) })}

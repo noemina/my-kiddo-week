@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { usePlanStore } from "@/lib/plan-store";
 import type { ScheduleEntry } from "@/lib/planner-data";
 import { isoDate } from "@/lib/week";
+import { ColorPicker } from "@/components/ColorPicker";
 
 type Props = {
   entry: ScheduleEntry;
@@ -17,24 +18,25 @@ export function EntryEditModal({ entry, date, onClose }: Props) {
   const tPlanner = useTranslations("Planner");
   const {
     plan,
-    updateActivity,
+    updateActivitySeries,
+    removeActivitySeries,
     updateException,
     skipActivityOccurrence,
-    removeActivity,
     addException,
     removeException,
   } = usePlanStore();
 
   const isRecurring = entry.kind === "recurring";
-  const source = isRecurring
-    ? plan.activities.find((a) => a.id === entry.id)
-    : plan.exceptions.find((e) => e.id === entry.id);
+  const activity = isRecurring ? plan.activities.find((a) => a.id === entry.id) : undefined;
+  const exception = !isRecurring ? plan.exceptions.find((e) => e.id === entry.id) : undefined;
+  const source = activity ?? exception;
 
   const [title, setTitle] = useState(entry.title);
   const [startTime, setStartTime] = useState(entry.startTime ?? "");
   const [endTime, setEndTime] = useState(entry.endTime ?? "");
   const [location, setLocation] = useState(entry.location ?? "");
   const [category, setCategory] = useState(entry.category ?? "");
+  const [color, setColor] = useState(source?.color ?? "");
   const [kidIds, setKidIds] = useState<string[]>(source?.kidIds ?? []);
 
   if (!source) return null;
@@ -47,12 +49,16 @@ export function EntryEditModal({ entry, date, onClose }: Props) {
       endTime: endTime || null,
       location: location.trim() || null,
       category: category.trim() || null,
+      color: color || null,
       kidIds,
     };
   }
 
   function saveWholeSeries() {
-    updateActivity(entry.id, { ...commonFields(), startTime: startTime || entry.startTime || "" });
+    updateActivitySeries(activity!.seriesId, {
+      ...commonFields(),
+      startTime: startTime || entry.startTime || "",
+    });
     onClose();
   }
 
@@ -63,7 +69,6 @@ export function EntryEditModal({ entry, date, onClose }: Props) {
       startTime: startTime || null,
       date: dateIso,
       notes: null,
-      color: null,
     });
     onClose();
   }
@@ -74,7 +79,7 @@ export function EntryEditModal({ entry, date, onClose }: Props) {
   }
 
   function deleteWholeSeries() {
-    removeActivity(entry.id);
+    removeActivitySeries(activity!.seriesId);
     onClose();
   }
 
@@ -137,6 +142,10 @@ export function EntryEditModal({ entry, date, onClose }: Props) {
             placeholder={tPlanner("categoryPlaceholder")}
             className="rounded-md border border-gray-300 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
           />
+          <fieldset className="flex flex-col gap-1">
+            <legend className="mb-1">{tPlanner("color")}</legend>
+            <ColorPicker value={color} onChange={setColor} autoTitle={tPlanner("colorAuto")} />
+          </fieldset>
           <fieldset className="flex flex-col gap-1">
             <legend className="mb-1">{tPlanner("kids")}</legend>
             <div className="flex flex-wrap gap-3">

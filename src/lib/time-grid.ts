@@ -50,6 +50,8 @@ export function positionInRange(
   const clampedStart = Math.max(range.startMinutes, Math.min(entry.start, range.endMinutes));
   const clampedEnd = Math.max(range.startMinutes, Math.min(entry.end, range.endMinutes));
   const topPct = ((clampedStart - range.startMinutes) / total) * 100;
-  const heightPct = Math.max(((clampedEnd - clampedStart) / total) * 100, 2);
+  // Floor high enough that a short entry's 3 lines of text (title, time,
+  // location) don't get clipped by the box's own overflow:hidden.
+  const heightPct = Math.max(((clampedEnd - clampedStart) / total) * 100, 8);
   return { topPct, heightPct };
 }

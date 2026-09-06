@@ -4,7 +4,9 @@
     "planner": "Planning",
     "kids": "Enfants",
     "save": "Enregistrer le plan",
-    "load": "Charger le plan"
+    "load": "Charger le plan",
+    "clearAll": "Tout effacer",
+    "clearAllConfirm": "Cela supprimera définitivement tous les enfants, activités et événements de ce navigateur. Cette action est irréversible. Continuer ?"
   },
   "Landing": {
     "heroTitle": "Un endroit calme pour toute la semaine de vos enfants",
@@ -57,6 +59,8 @@
     "endTime": "Heure de fin",
     "locationPlaceholder": "Lieu (facultatif)",
     "categoryPlaceholder": "Catégorie, p. ex. sport, école (facultatif)",
+    "color": "Couleur",
+    "colorAuto": "Utiliser automatiquement la couleur de l'enfant",
     "validityHint": "Période de validité facultative — laissez vide pour une activité qui se répète indéfiniment, ou définissez une plage, p. ex. une année scolaire (sept.–sept.).",
     "validFrom": "Valide à partir du",
     "validTo": "Valide jusqu'au",

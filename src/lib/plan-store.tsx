@@ -6,6 +6,9 @@ export type Kid = { id: string; name: string; color: string };
 
 export type Activity = {
   id: string;
+  /** Shared across every day-of-week row created from the same "add recurring
+   * activity" submission, so a "whole series" edit/delete can find its siblings. */
+  seriesId: string;
   title: string;
   dayOfWeek: number; // 0 = Monday .. 6 = Sunday
   startTime: string;
@@ -64,12 +67,35 @@ function isPlanData(value: unknown): value is PlanData {
   );
 }
 
-// Older exported/stored plans predate the excludeDates field — default it in
+// Older exported/stored plans predate excludeDates/seriesId — default them in
 // rather than letting every reader guard against undefined.
 function normalizePlan(plan: PlanData): PlanData {
+  // Legacy activities predate seriesId — each day-of-week was saved as its
+  // own row with no link back to the others created in the same "add
+  // recurring activity" submission. Reconstruct that link with a best-effort
+  // match on everything but the day itself, so existing multi-day activities
+  // get whole-series editing without the user having to re-enter them.
+  const seriesKeyToId = new Map<string, string>();
   return {
     ...plan,
-    activities: plan.activities.map((a) => ({ ...a, excludeDates: a.excludeDates ?? [] })),
+    activities: plan.activities.map((a) => {
+      const excludeDates = a.excludeDates ?? [];
+      if (a.seriesId) return { ...a, excludeDates };
+      const key = [
+        a.title,
+        a.startTime,
+        a.endTime,
+        a.location,
+        a.category,
+        [...a.kidIds].sort().join(","),
+      ].join("|");
+      let seriesId = seriesKeyToId.get(key);
+      if (!seriesId) {
+        seriesId = newId();
+        seriesKeyToId.set(key, seriesId);
+      }
+      return { ...a, excludeDates, seriesId };
+    }),
   };
 }
 
@@ -85,7 +111,7 @@ function loadFromStorage(): PlanData {
   }
 }
 
-function newId(): string {
+export function newId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
 }
@@ -97,8 +123,13 @@ export type PlanStore = {
   addKid: (kid: Omit<Kid, "id">) => void;
   removeKid: (id: string) => void;
   addActivity: (activity: Omit<Activity, "id" | "excludeDates">) => void;
-  updateActivity: (id: string, patch: Partial<Omit<Activity, "id" | "excludeDates">>) => void;
-  removeActivity: (id: string) => void;
+  /** Updates every day-of-week row sharing this seriesId (a "whole series" edit). */
+  updateActivitySeries: (
+    seriesId: string,
+    patch: Partial<Pick<Activity, "title" | "startTime" | "endTime" | "location" | "category" | "color" | "kidIds">>
+  ) => void;
+  /** Removes every day-of-week row sharing this seriesId (a "whole series" delete). */
+  removeActivitySeries: (seriesId: string) => void;
   /** Skips a single dated occurrence of a recurring activity (edit-this-one or cancel-this-one). */
   skipActivityOccurrence: (activityId: string, date: string) => void;
   addException: (exception: Omit<ActivityException, "id">) => void;
@@ -106,6 +137,8 @@ export type PlanStore = {
   removeException: (id: string) => void;
   exportPlan: () => void;
   importPlan: (file: File) => Promise<void>;
+  /** Wipes everything (kids, activities, exceptions, plan name) back to empty. */
+  clearPlan: () => void;
 };
 
 const PlanStoreContext = createContext<PlanStore | null>(null);
@@ -161,13 +194,16 @@ export function PlanStoreProvider({ children }: { children: ReactNode }) {
         ...p,
         activities: [...p.activities, { ...activity, id: newId(), excludeDates: [] }],
       })),
-    updateActivity: (id, patch) =>
+    updateActivitySeries: (seriesId, patch) =>
       setPlan((p) => ({
         ...p,
-        activities: p.activities.map((a) => (a.id === id ? { ...a, ...patch } : a)),
+        activities: p.activities.map((a) => (a.seriesId === seriesId ? { ...a, ...patch } : a)),
       })),
-    removeActivity: (id) =>
-      setPlan((p) => ({ ...p, activities: p.activities.filter((a) => a.id !== id) })),
+    removeActivitySeries: (seriesId) =>
+      setPlan((p) => ({
+        ...p,
+        activities: p.activities.filter((a) => a.seriesId !== seriesId),
+      })),
     skipActivityOccurrence: (activityId, date) =>
       setPlan((p) => ({
         ...p,
@@ -202,6 +238,7 @@ export function PlanStoreProvider({ children }: { children: ReactNode }) {
       if (!isPlanData(parsed)) throw new Error("invalid");
       setPlan(normalizePlan(parsed));
     },
+    clearPlan: () => setPlan(EMPTY_PLAN),
   };
 
   return <PlanStoreContext.Provider value={store}>{children}</PlanStoreContext.Provider>;

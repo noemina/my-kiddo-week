@@ -147,7 +147,82 @@ export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabel
           {familyName ? `${familyName} — ${weekLabel}` : weekLabel}
         </div>
 
+        {/* Each of these rows is its own flex container with a spacer
+            matching the hour-axis width, so the axis and the timed grid
+            below — which live in the LAST row, as direct siblings with
+            nothing stacked above either of them — start at the exact same Y
+            position. Splitting the day header/kid-names/all-day rows out
+            like this (rather than nesting them above each day's own timed
+            grid) is what keeps the hour labels aligned with where events
+            actually render, instead of drifting apart by whatever height
+            these header rows happen to take up. */}
         <div className="flex text-sm">
+          <div className="w-16 shrink-0" />
+          <div className="flex flex-1 gap-2">
+            {visibleDays.map(({ label, index }) => (
+              <div
+                key={index}
+                className="min-w-0 flex-1 border-b border-gray-200 pb-1 text-center font-semibold"
+              >
+                {label}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-1 flex text-sm">
+          <div className="w-16 shrink-0" />
+          <div className="flex flex-1 gap-2">
+            {visibleDays.map(({ index }) => {
+              const kidsWithContent = kids.filter((kid) => entriesFor(index, kid.id).length > 0);
+              const dayKids = kidsWithContent.length > 0 ? kidsWithContent : kids;
+              return (
+                <div key={index} className="flex min-w-0 flex-1 gap-0.5">
+                  {dayKids.map((kid) => (
+                    <div
+                      key={kid.id}
+                      className="min-w-0 flex-1 truncate text-center text-xs font-semibold"
+                      style={{ color: kid.color }}
+                    >
+                      {kid.name}
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="mt-1 flex min-h-5 text-sm">
+          <div className="w-16 shrink-0" />
+          <div className="flex flex-1 gap-2">
+            {visibleDays.map(({ index }) => {
+              const kidsWithContent = kids.filter((kid) => entriesFor(index, kid.id).length > 0);
+              const dayKids = kidsWithContent.length > 0 ? kidsWithContent : kids;
+              return (
+                <div key={index} className="flex min-w-0 flex-1 gap-0.5">
+                  {dayKids.map((kid) => (
+                    <div key={kid.id} className="flex min-w-0 flex-1 flex-col gap-0.5">
+                      {entriesFor(index, kid.id)
+                        .filter((e) => !e.startTime)
+                        .map((e) => (
+                          <div
+                            key={e.id}
+                            className="truncate rounded border-l-2 bg-gray-50 px-1"
+                            style={{ borderLeftColor: e.color }}
+                          >
+                            {e.title}
+                          </div>
+                        ))}
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="mt-1 flex text-sm">
           <div className="week-grid-height relative w-16 shrink-0">
             {ticks.map((tick) => {
               const { topPct } = positionInRange({ start: tick, end: tick }, range);
@@ -164,7 +239,7 @@ export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabel
           </div>
 
           <div className="flex flex-1 gap-2">
-            {visibleDays.map(({ label, index }) => {
+            {visibleDays.map(({ index }) => {
               // Only give a kid a column-slot on days they actually have
               // something — an empty slot next to a busy sibling just steals
               // width the busy one badly needs. Falls back to showing
@@ -174,86 +249,50 @@ export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabel
               const dayKids = kidsWithContent.length > 0 ? kidsWithContent : kids;
 
               return (
-                <div key={index} className="min-w-0 flex-1">
-                  <div className="mb-1 border-b border-gray-200 pb-1 text-center font-semibold">
-                    {label}
-                  </div>
-
-                  <div className="mb-1 flex gap-0.5">
-                    {dayKids.map((kid) => (
-                      <div
-                        key={kid.id}
-                        className="min-w-0 flex-1 truncate text-center text-xs font-semibold"
-                        style={{ color: kid.color }}
-                      >
-                        {kid.name}
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mb-1 flex min-h-5 gap-0.5">
-                    {dayKids.map((kid) => (
-                      <div key={kid.id} className="flex min-w-0 flex-1 flex-col gap-0.5">
-                        {entriesFor(index, kid.id)
-                          .filter((e) => !e.startTime)
-                          .map((e) => (
-                            <div
-                              key={e.id}
-                              className="truncate rounded border-l-2 bg-gray-50 px-1"
-                              style={{ borderLeftColor: e.color }}
-                            >
-                              {e.title}
-                            </div>
-                          ))}
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="week-grid-height flex gap-0.5">
-                    {dayKids.map((kid) => (
-                      <div
-                        key={kid.id}
-                        className="relative min-w-0 flex-1 border-l border-gray-100 first:border-l-0"
-                      >
-                        {ticks.map((tick) => {
-                          const { topPct } = positionInRange({ start: tick, end: tick }, range);
+                <div key={index} className="week-grid-height flex min-w-0 flex-1 gap-0.5">
+                  {dayKids.map((kid) => (
+                    <div
+                      key={kid.id}
+                      className="relative min-w-0 flex-1 border-l border-gray-100 first:border-l-0"
+                    >
+                      {ticks.map((tick) => {
+                        const { topPct } = positionInRange({ start: tick, end: tick }, range);
+                        return (
+                          <div
+                            key={tick}
+                            className="absolute inset-x-0 border-t border-gray-100"
+                            style={{ top: `${topPct}%` }}
+                          />
+                        );
+                      })}
+                      {entriesFor(index, kid.id)
+                        .filter((e) => e.startTime)
+                        .map((entry) => {
+                          const start = timeToMinutes(entry.startTime!);
+                          const end = timeToMinutes(
+                            entry.endTime ?? addMinutes(entry.startTime!, DEFAULT_DURATION_MINUTES)
+                          );
+                          const { topPct, heightPct } = positionInRange({ start, end }, range);
                           return (
                             <div
-                              key={tick}
-                              className="absolute inset-x-0 border-t border-gray-100"
-                              style={{ top: `${topPct}%` }}
-                            />
+                              key={entry.id}
+                              className="absolute inset-x-0.5 overflow-hidden rounded border-l-2 bg-gray-50 px-1.5 py-1 leading-tight"
+                              style={{
+                                top: `${topPct}%`,
+                                height: `${heightPct}%`,
+                                borderLeftColor: entry.color,
+                              }}
+                            >
+                              <p className="font-medium">{entry.title}</p>
+                              <p className="text-gray-500">{timeRangeLabel(entry)}</p>
+                              {entry.location && (
+                                <p className="truncate text-gray-500">{entry.location}</p>
+                              )}
+                            </div>
                           );
                         })}
-                        {entriesFor(index, kid.id)
-                          .filter((e) => e.startTime)
-                          .map((entry) => {
-                            const start = timeToMinutes(entry.startTime!);
-                            const end = timeToMinutes(
-                              entry.endTime ?? addMinutes(entry.startTime!, DEFAULT_DURATION_MINUTES)
-                            );
-                            const { topPct, heightPct } = positionInRange({ start, end }, range);
-                            return (
-                              <div
-                                key={entry.id}
-                                className="absolute inset-x-0.5 overflow-hidden rounded border-l-2 bg-gray-50 px-1.5 py-1 leading-tight"
-                                style={{
-                                  top: `${topPct}%`,
-                                  height: `${heightPct}%`,
-                                  borderLeftColor: entry.color,
-                                }}
-                              >
-                                <p className="font-medium">{entry.title}</p>
-                                <p className="text-gray-500">{timeRangeLabel(entry)}</p>
-                                {entry.location && (
-                                  <p className="truncate text-gray-500">{entry.location}</p>
-                                )}
-                              </div>
-                            );
-                          })}
-                      </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
               );
             })}

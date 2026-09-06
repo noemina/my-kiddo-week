@@ -26,7 +26,7 @@ export default function KidsPage() {
   return (
     <>
       <AppNav active="kids" />
-      <main className="mx-auto max-w-2xl px-6 py-8">
+      <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-8">
         <h1 className="text-lg font-semibold">{t("title")}</h1>
         <p className="mt-1 text-xs text-gray-500">{tStorage("hint")}</p>
 

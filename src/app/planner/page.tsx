@@ -6,7 +6,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { AppNav } from "@/components/AppNav";
 import { WeekGrid } from "@/components/WeekGrid";
 import { EntryEditModal } from "@/components/EntryEditModal";
-import { usePlanStore } from "@/lib/plan-store";
+import { ColorPicker } from "@/components/ColorPicker";
+import { usePlanStore, newId } from "@/lib/plan-store";
 import { getWeekSchedule, type ScheduleEntry } from "@/lib/planner-data";
 import { addDays, formatDayHeader, isoDate, startOfWeek, weekdayName } from "@/lib/week";
 
@@ -33,6 +34,7 @@ export default function PlannerPage() {
     const endTime = String(data.get("endTime") ?? "").trim() || null;
     const location = String(data.get("location") ?? "").trim() || null;
     const category = String(data.get("category") ?? "").trim() || null;
+    const color = String(data.get("color") ?? "").trim() || null;
     const validFrom = String(data.get("validFrom") ?? "").trim() || null;
     const validTo = String(data.get("validTo") ?? "").trim() || null;
     const includeInTypicalWeek = data.get("includeInTypicalWeek") === "on";
@@ -42,15 +44,19 @@ export default function PlannerPage() {
     if (!title || !startTime) return setActivityError(tErr("invalidInput"));
     if (validFrom && validTo && validFrom > validTo) return setActivityError(tErr("validityRange"));
 
+    // One row per selected day, but sharing a seriesId so an "edit/delete
+    // whole series" later can find and update every one of them together.
+    const seriesId = newId();
     for (const dayOfWeek of daysOfWeek) {
       addActivity({
+        seriesId,
         title,
         dayOfWeek,
         startTime,
         endTime,
         location,
         category,
-        color: null,
+        color,
         validFrom,
         validTo,
         includeInTypicalWeek,
@@ -72,6 +78,7 @@ export default function PlannerPage() {
     const endTime = String(data.get("endTime") ?? "").trim() || null;
     const location = String(data.get("location") ?? "").trim() || null;
     const notes = String(data.get("notes") ?? "").trim() || null;
+    const color = String(data.get("color") ?? "").trim() || null;
 
     if (kidIds.length === 0) return setExceptionError(tErr("kidRequired"));
     if (!title || !date) return setExceptionError(tErr("invalidInput"));
@@ -84,7 +91,7 @@ export default function PlannerPage() {
       location,
       notes,
       category: null,
-      color: null,
+      color,
       kidIds,
     });
     setExceptionError(null);
@@ -94,7 +101,7 @@ export default function PlannerPage() {
   return (
     <>
       <AppNav active="planner" />
-      <main className="mx-auto max-w-6xl px-6 py-8">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button
@@ -202,6 +209,10 @@ export default function PlannerPage() {
                   placeholder={t("categoryPlaceholder")}
                   className="rounded-md border border-gray-300 px-3 py-2"
                 />
+                <fieldset className="flex flex-col gap-1">
+                  <legend className="mb-1">{t("color")}</legend>
+                  <ColorPicker name="color" defaultValue="" autoTitle={t("colorAuto")} />
+                </fieldset>
                 <p className="mt-1 text-xs text-gray-500">{t("validityHint")}</p>
                 <div className="flex gap-3">
                   <label className="flex flex-1 flex-col gap-1">
@@ -284,6 +295,10 @@ export default function PlannerPage() {
                   placeholder={t("locationPlaceholder")}
                   className="rounded-md border border-gray-300 px-3 py-2"
                 />
+                <fieldset className="flex flex-col gap-1">
+                  <legend className="mb-1">{t("color")}</legend>
+                  <ColorPicker name="color" defaultValue="" autoTitle={t("colorAuto")} />
+                </fieldset>
                 <textarea
                   name="notes"
                   placeholder={t("notesPlaceholder")}
