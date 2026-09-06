@@ -95,6 +95,8 @@
     "daysToInclude": "Jours à inclure",
     "kidsToInclude": "Enfants à inclure",
     "timeWindow": "Plage horaire",
+    "fontSizeAdjustment": "Taille de police (PDF)",
+    "fontSizeAdjustmentHint": "Ajoutée à la taille par défaut des noms de jours, des prénoms des enfants, des noms d'événements et des notes dans le PDF téléchargé.",
     "eventsToInclude": "Événements à inclure",
     "noRecurringActivities": "Aucune activité récurrente pour l'instant.",
     "noKidsMessage": "Ajoutez d'abord des enfants pour créer une semaine imprimable.",

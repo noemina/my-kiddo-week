@@ -95,6 +95,8 @@
     "daysToInclude": "Einzuschließende Tage",
     "kidsToInclude": "Einzuschließende Kinder",
     "timeWindow": "Zeitfenster",
+    "fontSizeAdjustment": "Schriftgröße (PDF)",
+    "fontSizeAdjustmentHint": "Wird zur Standardgröße von Wochentagen, Namen der Kinder, Terminnamen und Notizen im heruntergeladenen PDF addiert.",
     "eventsToInclude": "Einzuschließende Ereignisse",
     "noRecurringActivities": "Noch keine wiederkehrenden Aktivitäten.",
     "noKidsMessage": "Zuerst Kinder hinzufügen, um eine druckbare Woche zu erstellen.",

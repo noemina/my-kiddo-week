@@ -13,6 +13,7 @@ import {
 import type { PrintInstance, PrintKid } from "@/lib/planner-data";
 import type { PdfWeekData } from "@/lib/pdf-export";
 import { PrintButton } from "@/components/PrintButton";
+import { usePlanStore } from "@/lib/plan-store";
 
 const DEFAULT_DURATION_MINUTES = 45;
 
@@ -49,7 +50,12 @@ function minutesToHHMM(minutes: number): string {
 export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabels }: Props) {
   const t = useTranslations("Print");
   const tPlanner = useTranslations("Planner");
-  const [notes, setNotes] = useState("");
+  const { plan, setNotes } = usePlanStore();
+  const notes = plan.notes;
+  // Not persisted — a per-session tweak for this particular PDF, not part of
+  // the saved plan data (unlike notes, which the user explicitly wants
+  // stored/carried by save-load).
+  const [fontSizeAdjustment, setFontSizeAdjustment] = useState(0);
   const [checkedDays, setCheckedDays] = useState<boolean[]>(() => Array(7).fill(true));
   // Keyed by seriesId (not instance id) so every day-of-week occurrence of
   // the same recurring activity shares one checkbox — an exception (whether
@@ -181,6 +187,8 @@ export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabel
       })),
     })),
     notes,
+    notesLabel: t("notes"),
+    fontSizeAdjustment,
   };
 
   return (
@@ -256,6 +264,22 @@ export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabel
               />
             </label>
           </div>
+        </fieldset>
+
+        <fieldset className="rounded-md border border-gray-200 p-3 text-sm dark:border-gray-800">
+          <legend className="px-1 font-semibold">{t("fontSizeAdjustment")}</legend>
+          <div className="mt-1 flex items-center gap-2">
+            <input
+              type="number"
+              value={fontSizeAdjustment}
+              onChange={(e) => setFontSizeAdjustment(Number(e.target.value) || 0)}
+              className="w-20 rounded-md border border-gray-300 px-2 py-1 dark:border-gray-700 dark:bg-gray-800"
+            />
+            <span className="text-gray-500 dark:text-gray-400">pt</span>
+          </div>
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            {t("fontSizeAdjustmentHint")}
+          </p>
         </fieldset>
 
         <fieldset className="rounded-md border border-gray-200 p-3 text-sm dark:border-gray-800">

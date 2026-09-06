@@ -43,6 +43,10 @@ export type PlanData = {
   kids: Kid[];
   activities: Activity[];
   exceptions: ActivityException[];
+  /** Free-text notes shown/edited on the print views — persisted so they
+   * survive reloads and travel with save/load, instead of being lost the
+   * moment you navigate away. */
+  notes: string;
 };
 
 export const EMPTY_PLAN: PlanData = {
@@ -51,6 +55,7 @@ export const EMPTY_PLAN: PlanData = {
   kids: [],
   activities: [],
   exceptions: [],
+  notes: "",
 };
 
 const STORAGE_KEY = "my-kiddo-week:plan";
@@ -67,8 +72,8 @@ function isPlanData(value: unknown): value is PlanData {
   );
 }
 
-// Older exported/stored plans predate excludeDates/seriesId — default them in
-// rather than letting every reader guard against undefined.
+// Older exported/stored plans predate excludeDates/seriesId/notes — default
+// them in rather than letting every reader guard against undefined.
 function normalizePlan(plan: PlanData): PlanData {
   // Legacy activities predate seriesId — each day-of-week was saved as its
   // own row with no link back to the others created in the same "add
@@ -78,6 +83,7 @@ function normalizePlan(plan: PlanData): PlanData {
   const seriesKeyToId = new Map<string, string>();
   return {
     ...plan,
+    notes: plan.notes ?? "",
     activities: plan.activities.map((a) => {
       const excludeDates = a.excludeDates ?? [];
       if (a.seriesId) return { ...a, excludeDates };
@@ -120,6 +126,7 @@ export type PlanStore = {
   plan: PlanData;
   hydrated: boolean;
   setFamilyName: (name: string) => void;
+  setNotes: (notes: string) => void;
   addKid: (kid: Omit<Kid, "id">) => void;
   removeKid: (id: string) => void;
   addActivity: (activity: Omit<Activity, "id" | "excludeDates">) => void;
@@ -177,6 +184,7 @@ export function PlanStoreProvider({ children }: { children: ReactNode }) {
     plan,
     hydrated,
     setFamilyName: (name) => setPlan((p) => ({ ...p, familyName: name })),
+    setNotes: (notes) => setPlan((p) => ({ ...p, notes })),
     addKid: (kid) => setPlan((p) => ({ ...p, kids: [...p.kids, { ...kid, id: newId() }] })),
     removeKid: (id) =>
       setPlan((p) => ({

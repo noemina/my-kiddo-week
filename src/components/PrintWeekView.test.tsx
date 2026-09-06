@@ -3,13 +3,16 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import type { ComponentProps } from "react";
 import { PrintWeekView } from "@/components/PrintWeekView";
+import { PlanStoreProvider } from "@/lib/plan-store";
 import type { PrintInstance, PrintKid } from "@/lib/planner-data";
 import messages from "../../messages/en.json";
 
 function renderPrintWeekView(props: ComponentProps<typeof PrintWeekView>) {
   return render(
     <NextIntlClientProvider locale="en" messages={messages}>
-      <PrintWeekView {...props} />
+      <PlanStoreProvider>
+        <PrintWeekView {...props} />
+      </PlanStoreProvider>
     </NextIntlClientProvider>
   );
 }

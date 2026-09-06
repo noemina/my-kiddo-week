@@ -40,7 +40,14 @@ export type PdfWeekData = {
   days: PdfDay[];
   ticks: PdfTick[];
   notes: string;
+  notesLabel: string;
+  /** Added to the base size (in pt) of day names, kid names, event titles,
+   * and the notes body — everything else (the main title, hour-axis labels,
+   * event time/location lines) stays fixed. */
+  fontSizeAdjustment: number;
 };
+
+const MIN_FONT_SIZE = 4;
 
 function hexToRgb(hex: string): [number, number, number] {
   const clean = hex.replace("#", "");
@@ -75,6 +82,7 @@ const ALL_DAY_ROW_HEIGHT = 7;
 export async function generateWeekPdf(data: PdfWeekData, fileName: string): Promise<void> {
   const { jsPDF } = await import("jspdf");
   const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const adjustedSize = (base: number) => Math.max(MIN_FONT_SIZE, base + data.fontSizeAdjustment);
 
   const contentLeft = MARGIN + AXIS_WIDTH;
   const contentRight = PAGE_WIDTH - MARGIN;
@@ -103,7 +111,7 @@ export async function generateWeekPdf(data: PdfWeekData, fileName: string): Prom
 
     // Day label
     pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(10);
+    pdf.setFontSize(adjustedSize(10));
     pdf.setTextColor(17, 24, 39);
     pdf.text(day.label, dayX + dayWidth / 2, MARGIN + TITLE_HEIGHT + 4, { align: "center" });
     pdf.setDrawColor(209, 213, 219);
@@ -119,7 +127,7 @@ export async function generateWeekPdf(data: PdfWeekData, fileName: string): Prom
     for (const kid of day.kids) {
       // Kid name
       pdf.setFont("helvetica", "bold");
-      pdf.setFontSize(8);
+      pdf.setFontSize(adjustedSize(8));
       const [kr, kg, kb] = hexToRgb(kid.color);
       pdf.setTextColor(kr, kg, kb);
       const kidNameY = MARGIN + TITLE_HEIGHT + DAY_HEADER_HEIGHT + 3.5;
@@ -135,7 +143,7 @@ export async function generateWeekPdf(data: PdfWeekData, fileName: string): Prom
         pdf.setFillColor(er, eg, eb);
         pdf.rect(kidX, allDayY - 2.2, 0.7, 2.8, "F");
         pdf.setFont("helvetica", "normal");
-        pdf.setFontSize(6.5);
+        pdf.setFontSize(adjustedSize(6.5));
         pdf.setTextColor(31, 41, 55);
         pdf.text(truncateToWidth(pdf, entry.title, kidWidth - 1.2), kidX + 1, allDayY);
         allDayY += 3.1;
@@ -170,7 +178,7 @@ export async function generateWeekPdf(data: PdfWeekData, fileName: string): Prom
         let lineY = y + 3;
 
         pdf.setFont("helvetica", "bold");
-        pdf.setFontSize(7.5);
+        pdf.setFontSize(adjustedSize(7.5));
         pdf.setTextColor(17, 24, 39);
         pdf.text(truncateToWidth(pdf, entry.title, textMaxWidth), textX, Math.min(lineY, y + h - 0.5));
 
@@ -213,9 +221,9 @@ export async function generateWeekPdf(data: PdfWeekData, fileName: string): Prom
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(9);
     pdf.setTextColor(17, 24, 39);
-    pdf.text("Notes", MARGIN, notesTop);
+    pdf.text(data.notesLabel, MARGIN, notesTop);
     pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(8);
+    pdf.setFontSize(adjustedSize(8));
     pdf.setTextColor(55, 65, 81);
     const lines = pdf.splitTextToSize(data.notes, PAGE_WIDTH - MARGIN * 2);
     pdf.text(lines, MARGIN, notesTop + 4);

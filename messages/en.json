@@ -95,6 +95,8 @@
     "daysToInclude": "Days to include",
     "kidsToInclude": "Kids to include",
     "timeWindow": "Time window",
+    "fontSizeAdjustment": "Font size (PDF)",
+    "fontSizeAdjustmentHint": "Added to the default size of day names, kid names, event names, and notes in the downloaded PDF.",
     "eventsToInclude": "Events to include",
     "noRecurringActivities": "No recurring activities yet.",
     "noKidsMessage": "Add kids first to build a printable week.",
