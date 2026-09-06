@@ -128,6 +128,7 @@ export type PlanStore = {
   setFamilyName: (name: string) => void;
   setNotes: (notes: string) => void;
   addKid: (kid: Omit<Kid, "id">) => void;
+  updateKid: (id: string, patch: Partial<Omit<Kid, "id">>) => void;
   removeKid: (id: string) => void;
   addActivity: (activity: Omit<Activity, "id" | "excludeDates">) => void;
   /** Updates every day-of-week row sharing this seriesId (a "whole series" edit). */
@@ -186,6 +187,11 @@ export function PlanStoreProvider({ children }: { children: ReactNode }) {
     setFamilyName: (name) => setPlan((p) => ({ ...p, familyName: name })),
     setNotes: (notes) => setPlan((p) => ({ ...p, notes })),
     addKid: (kid) => setPlan((p) => ({ ...p, kids: [...p.kids, { ...kid, id: newId() }] })),
+    updateKid: (id, patch) =>
+      setPlan((p) => ({
+        ...p,
+        kids: p.kids.map((k) => (k.id === id ? { ...k, ...patch } : k)),
+      })),
     removeKid: (id) =>
       setPlan((p) => ({
         ...p,

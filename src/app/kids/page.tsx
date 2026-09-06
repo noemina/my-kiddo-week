@@ -10,7 +10,16 @@ const DEFAULT_COLORS = ["#6366f1", "#ec4899", "#10b981", "#f59e0b", "#3b82f6", "
 export default function KidsPage() {
   const t = useTranslations("Kids");
   const tStorage = useTranslations("Storage");
-  const { plan, setFamilyName, addKid, removeKid } = usePlanStore();
+  const { plan, setFamilyName, addKid, updateKid, removeKid } = usePlanStore();
+
+  function handleRenameKid(kid: { id: string; name: string }, e: React.FocusEvent<HTMLInputElement>) {
+    const value = e.target.value.trim();
+    if (value && value !== kid.name) {
+      updateKid(kid.id, { name: value });
+    } else {
+      e.target.value = kid.name;
+    }
+  }
 
   function handleAddKid(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -46,13 +55,19 @@ export default function KidsPage() {
               key={kid.id}
               className="flex items-center justify-between rounded-md border border-gray-200 px-4 py-3"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex min-w-0 flex-1 items-center gap-3">
                 <span
-                  className="h-3 w-3 rounded-full"
+                  className="h-3 w-3 shrink-0 rounded-full"
                   style={{ backgroundColor: kid.color }}
                   aria-hidden
                 />
-                <span className="font-medium">{kid.name}</span>
+                <input
+                  key={kid.id}
+                  defaultValue={kid.name}
+                  onBlur={(e) => handleRenameKid(kid, e)}
+                  aria-label={t("namePlaceholder")}
+                  className="min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-1 py-0.5 font-medium hover:border-gray-200 focus:border-gray-300 focus:outline-none dark:hover:border-gray-700 dark:focus:border-gray-600"
+                />
               </div>
               <button
                 type="button"
