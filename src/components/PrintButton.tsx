@@ -1,71 +1,20 @@
 "use client";
 
-import { useState, type RefObject } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
+import type { PdfWeekData } from "@/lib/pdf-export";
 
-export function PrintButton({
-  targetRef,
-  fileName,
-}: {
-  targetRef: RefObject<HTMLElement | null>;
-  fileName: string;
-}) {
+export function PrintButton({ data, fileName }: { data: PdfWeekData; fileName: string }) {
   const t = useTranslations("Print");
   const [busy, setBusy] = useState(false);
 
   async function handleClick() {
-    const node = targetRef.current;
-    if (!node || busy) return;
+    if (busy) return;
     setBusy(true);
-
-    // Widen the captured element to match A4 landscape's aspect ratio before
-    // screenshotting it — otherwise its natural (narrower) ratio forces the
-    // "fit to page" step below to letterbox it, leaving big blank margins
-    // instead of the calendar filling the page. This makes the flexible day
-    // columns genuinely wider, not stretched/distorted.
-    const A4_LANDSCAPE_RATIO = 297 / 210;
-    const originalWidth = node.style.width;
-    const originalMaxWidth = node.style.maxWidth;
-    const targetWidth = Math.round(node.getBoundingClientRect().height * A4_LANDSCAPE_RATIO);
-    node.style.maxWidth = "none";
-    node.style.width = `${targetWidth}px`;
-
     try {
-      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-        // Tailwind v4's default palette uses oklch()/lab() colors, which the
-        // upstream html2canvas can't parse — the "-pro" fork adds support.
-        import("html2canvas-pro"),
-        import("jspdf"),
-      ]);
-      const canvas = await html2canvas(node, { scale: 2, backgroundColor: "#ffffff" });
-      // JPEG at high quality keeps the file a few hundred KB instead of the
-      // several MB a lossless PNG of a full-page raster would take.
-      const imgData = canvas.toDataURL("image/jpeg", 0.92);
-
-      // A real A4 page (landscape, since the weekly grid is always wide),
-      // with the captured content scaled to fit and centered — rather than
-      // sizing the page itself to the canvas's raw pixel dimensions, which
-      // produced an arbitrary, non-A4 page size.
-      const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 8;
-      const maxWidth = pageWidth - margin * 2;
-      const maxHeight = pageHeight - margin * 2;
-      const imgRatio = canvas.width / canvas.height;
-      let renderWidth = maxWidth;
-      let renderHeight = renderWidth / imgRatio;
-      if (renderHeight > maxHeight) {
-        renderHeight = maxHeight;
-        renderWidth = renderHeight * imgRatio;
-      }
-      const x = (pageWidth - renderWidth) / 2;
-      const y = (pageHeight - renderHeight) / 2;
-      pdf.addImage(imgData, "JPEG", x, y, renderWidth, renderHeight);
-      pdf.save(`${fileName}.pdf`);
+      const { generateWeekPdf } = await import("@/lib/pdf-export");
+      await generateWeekPdf(data, fileName);
     } finally {
-      node.style.width = originalWidth;
-      node.style.maxWidth = originalMaxWidth;
       setBusy(false);
     }
   }
