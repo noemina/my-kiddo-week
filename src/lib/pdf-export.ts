@@ -68,6 +68,44 @@ function truncateToWidth(pdf: import("jspdf").jsPDF, text: string, maxWidth: num
   return `${truncated}…`;
 }
 
+// Like truncateToWidth, but always adds the ellipsis even if the text as
+// given already fits — used to mark a wrapped line as "there's more" when
+// we've decided to stop wrapping before showing every line.
+function forceEllipsis(pdf: import("jspdf").jsPDF, text: string, maxWidth: number): string {
+  let truncated = text;
+  while (truncated.length > 0 && pdf.getTextWidth(`${truncated}…`) > maxWidth) {
+    truncated = truncated.slice(0, -1);
+  }
+  return `${truncated}…`;
+}
+
+// Rough pt->mm line height for wrapped text at the given font size (jsPDF
+// has no line-height query API), used only to decide how many wrapped
+// lines can fit in a given box height.
+function lineHeightMm(fontSizePt: number): number {
+  return fontSizePt * 0.42;
+}
+
+// Wraps text to fit maxWidth (via jsPDF's own word-wrap), then clamps to
+// however many lines actually fit in maxHeight — putting an ellipsis on the
+// last shown line if that cuts off further wrapped content — rather than
+// truncating to a single line whenever the title is long.
+function wrapToBox(
+  pdf: import("jspdf").jsPDF,
+  text: string,
+  maxWidth: number,
+  maxHeight: number,
+  fontSizePt: number
+): string[] {
+  const lineHeight = lineHeightMm(fontSizePt);
+  const maxLines = Math.max(1, Math.floor(maxHeight / lineHeight));
+  const wrapped: string[] = pdf.splitTextToSize(text, maxWidth);
+  if (wrapped.length <= maxLines) return wrapped;
+  const clamped = wrapped.slice(0, maxLines);
+  clamped[maxLines - 1] = forceEllipsis(pdf, clamped[maxLines - 1], maxWidth);
+  return clamped;
+}
+
 const PAGE_WIDTH = 297;
 const PAGE_HEIGHT = 210;
 const MARGIN = 8;
@@ -175,25 +213,39 @@ export async function generateWeekPdf(data: PdfWeekData, fileName: string): Prom
 
         const textX = kidX + 2;
         const textMaxWidth = boxWidth - 2;
-        let lineY = y + 3;
+        const topPadding = 3;
+        let lineY = y + topPadding;
 
+        const titleFontSize = adjustedSize(7.5);
         pdf.setFont("helvetica", "bold");
-        pdf.setFontSize(adjustedSize(7.5));
+        pdf.setFontSize(titleFontSize);
         pdf.setTextColor(17, 24, 39);
-        pdf.text(truncateToWidth(pdf, entry.title, textMaxWidth), textX, Math.min(lineY, y + h - 0.5));
-
-        if (h > 5.5 && entry.timeLabel) {
-          lineY += 3.1;
-          pdf.setFont("helvetica", "normal");
-          pdf.setFontSize(6.5);
-          pdf.setTextColor(107, 114, 128);
-          pdf.text(truncateToWidth(pdf, entry.timeLabel, textMaxWidth), textX, lineY);
+        // Wrap the title onto as many lines as fit the box, rather than
+        // always truncating to one — a long name gets a second line instead
+        // of an ellipsis whenever there's room for it.
+        const titleLines = wrapToBox(
+          pdf,
+          entry.title,
+          textMaxWidth,
+          h - topPadding,
+          titleFontSize
+        );
+        const titleLineHeight = lineHeightMm(titleFontSize);
+        for (const line of titleLines) {
+          pdf.text(line, textX, lineY);
+          lineY += titleLineHeight;
         }
-        if (h > 8.5 && entry.location) {
-          lineY += 3;
-          pdf.setFont("helvetica", "normal");
-          pdf.setFontSize(6.5);
-          pdf.setTextColor(107, 114, 128);
+
+        const metaFontSize = 6.5;
+        const metaLineHeight = lineHeightMm(metaFontSize);
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(metaFontSize);
+        pdf.setTextColor(107, 114, 128);
+        if (y + h - lineY >= metaLineHeight && entry.timeLabel) {
+          pdf.text(truncateToWidth(pdf, entry.timeLabel, textMaxWidth), textX, lineY);
+          lineY += metaLineHeight;
+        }
+        if (y + h - lineY >= metaLineHeight && entry.location) {
           pdf.text(truncateToWidth(pdf, entry.location, textMaxWidth), textX, lineY);
         }
       }
