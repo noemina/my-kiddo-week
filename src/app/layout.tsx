@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
 import { PlanStoreProvider } from "@/lib/plan-store";
 import { Footer } from "@/components/Footer";
+import { DevBanner } from "@/components/DevBanner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -42,6 +43,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
+        <DevBanner />
         <NextIntlClientProvider>
           <PlanStoreProvider>{children}</PlanStoreProvider>
         </NextIntlClientProvider>

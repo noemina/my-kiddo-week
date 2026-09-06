@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Logo } from "@/components/Logo";
 import { LocaleSwitcher } from "@/components/LocaleSwitcher";
@@ -36,6 +37,12 @@ export default async function Home() {
     { title: t("step4Title"), body: t("step4Body") },
   ];
 
+  const previews = [
+    { src: "/preview-activities.png", title: tNav("planner"), body: t("previewActivitiesBody"), alt: t("previewActivitiesAlt") },
+    { src: "/preview-meals.png", title: tNav("meals"), body: t("previewMealsBody"), alt: t("previewMealsAlt") },
+    { src: "/preview-school.png", title: tNav("school"), body: t("previewSchoolBody"), alt: t("previewSchoolAlt") },
+  ];
+
   return (
     <>
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 px-6 py-4 dark:border-gray-800">
@@ -60,7 +67,7 @@ export default async function Home() {
               {t("heroSubtitle")}
             </p>
             <Link
-              href="/planner"
+              href="/kids"
               className="mt-8 rounded-md bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
             >
               {t("ctaPlanner")}
@@ -86,6 +93,38 @@ export default async function Home() {
               <p className="mt-1 text-sm text-emerald-800 dark:text-emerald-200">
                 {t("privacyBody")}
               </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Real PDF previews, one per planner */}
+        <section className="px-6 pb-20">
+          <div className="mx-auto max-w-5xl">
+            <h2 className="text-center text-2xl font-bold tracking-tight">
+              {t("previewSectionTitle")}
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-center text-sm text-gray-600 dark:text-gray-300">
+              {t("previewSectionBody")}
+            </p>
+            <div className="mt-10 grid gap-6 sm:grid-cols-3">
+              {previews.map((preview) => (
+                <div
+                  key={preview.src}
+                  className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
+                >
+                  <Image
+                    src={preview.src}
+                    alt={preview.alt}
+                    width={900}
+                    height={487}
+                    className="w-full border-b border-gray-200 dark:border-gray-800"
+                  />
+                  <div className="p-4">
+                    <h3 className="font-semibold">{preview.title}</h3>
+                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">{preview.body}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>

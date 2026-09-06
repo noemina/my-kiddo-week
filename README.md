@@ -1,16 +1,33 @@
 # my-kiddo-week
 
-A weekly planner for parents to track their kids' activities — recurring
-weekly activities (school, gym, swimming) and one-off exceptions (birthday
-parties, doctor's appointments), shareable across multiple kids — with a
-printable calendar-style weekly PDF, including a dateless "typical week"
-template built from your recurring activities.
+[![Latest release](https://img.shields.io/github/v/release/noemina/my-kiddo-week?label=version)](https://github.com/noemina/my-kiddo-week/releases)
+
+Three independent weekly planners for parents — **Activities**, **Meals**,
+and **School** — each with its own printable, real-PDF calendar. They share
+only your kid list; nothing else overlaps between them.
+
+- **Activities** — recurring weekly activities (school, gym, swimming) and
+  one-off exceptions (birthday parties, doctor's appointments), navigable
+  week by week, plus a dateless "typical week" template.
+- **Meals** — a lunch/dinner plan for a specific week. Family-wide by
+  default; split a meal to specific kids only when you need to.
+- **School** — a recurring weekly timetable (subjects + day/time slots per
+  kid) — the same every week, no dates involved.
+
+Every planner can print (really: download) a real vector PDF — the text is
+selectable, searchable, and copyable, not a screenshot — with per-print
+controls for which days/kids/events to include, a font-size adjustment, and
+its own notes field.
 
 **Local-first, no accounts.** Nothing is sent to or stored on a server: your
-plan lives entirely in your browser (`localStorage`). There's no login, no
-database, and no server-side data of any kind to worry about. Use "Save
-plan" to download your plan as a JSON file — a backup, and the way to move
-it to another browser or device — and "Load plan" to bring one back in.
+data lives entirely in your browser (`localStorage`). There's no login, no
+database, and no server-side data of any kind to worry about. Each of the
+three planner pages has its own **Save / Load / Clear** — Save downloads a
+self-contained JSON file (your kids + that planner's own data + its own
+notes), so it works as a backup or to move that planner to another
+browser/device even if the destination has no kids set up yet; Load merges
+kids in by id and replaces that planner's own data; Clear wipes only that
+planner's own data, leaving your kids and the other two planners untouched.
 
 ## Stack
 
@@ -18,6 +35,9 @@ it to another browser or device — and "Load plan" to bring one back in.
   client-rendered app; no backend
 - [Tailwind CSS v4](https://tailwindcss.com/)
 - [next-intl](https://next-intl.dev/) — English, French, Italian, German
+- [jsPDF](https://github.com/parallax/jsPDF) — PDFs are drawn directly with
+  vector text/shapes (see `src/lib/pdf-export.ts` and
+  `src/lib/meals-pdf-export.ts`), not a screenshot of the page
 - [Vitest](https://vitest.dev/) for unit tests
 
 ## Getting started
@@ -30,42 +50,60 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000). That's it — no database,
 no environment variables, no seed data.
 
-## Testing the app manually
+## Using the app
 
-- Add kids on the `/kids` page (name, color, and an optional plan name shown
-  on printouts).
-- On `/planner`, add recurring activities (with an optional validity window,
-  e.g. a school year running September to the next September) and one-off
-  events, then navigate between weeks. An activity or event can be assigned
-  to more than one kid (e.g. siblings sharing a class) — it shows up under
-  each assigned kid.
-- Use "Print this week" for a specific dated week (recurring occurrences +
-  that week's one-off events), or "Print typical week" for a dateless
-  template built from your recurring activities only. Both print views lay
-  the week out as a real calendar — a shared time axis down the left, each
-  day split into a sub-column per kid so overlapping activities (e.g. one
-  kid's gym class overlapping a sibling's swimming lesson) are visible side
-  by side — and let you choose which days and which events to include
-  before printing. Your browser's print dialog can save the result directly
-  as a PDF (landscape works best, given the width).
-- Use "Save plan" (top right) any time to download your current plan as a
-  `.json` file, and "Load plan" to restore one — this is also how you'd move
-  your plan to a different browser or device.
+1. **Add your kids first** (`/kids`) — name, color, and an optional family
+   name shown on printouts. Everything else assigns activities/meals/
+   subjects to one or more kids, so this is the one page all three planners
+   depend on.
+2. **Activities** (`/planner`) — add recurring activities (with an optional
+   validity window, e.g. a school year running September to the next
+   September) and one-off events, then navigate between weeks. An activity
+   can be assigned to more than one kid (e.g. siblings sharing a class) — it
+   shows up under each assigned kid. Click any entry on the calendar to edit
+   or delete it; for a recurring activity spanning multiple days, you'll be
+   asked whether the change applies to just that occurrence or the whole
+   series.
+3. **Meals** (`/meals`) — add a lunch or dinner for a specific date. Leave
+   the kids unchecked for a meal the whole family shares, or check specific
+   kids to scope it just to them.
+4. **School** (`/school`) — add a subject with the day(s) of the week and
+   time slot it occurs, per kid. This is a fixed weekly template, not tied
+   to any specific date — no "this week vs. next week" to think about.
+5. **Print any of them** — each planner's print page lets you pick which
+   days/kids/events to include, adjust the printed font size, and add notes
+   specific to that printout, before downloading a real PDF.
 
 ## Data model
 
-Everything lives in one JSON object (`PlanData`, see `src/lib/plan-store.tsx`)
-persisted to `localStorage` and mirrored by the Save/Load file:
+Everything lives in one JSON object (`PlanData`, see
+`src/lib/plan-store.tsx`) persisted to `localStorage`:
 
 - **familyName** — an optional label shown on printouts.
-- **kids** — `{ id, name, color }`.
+- **kids** — `{ id, name, color }`. Shared by all three planners.
 - **activities** — a recurring weekly activity (day of week + time), with an
-  optional `validFrom`/`validTo` window for activities that only apply for
-  part of the year, and `includeInTypicalWeek` (default checked/unchecked
-  state offered on the typical-week print page). Can be shared by more than
-  one kid via `kidIds`.
+  optional `validFrom`/`validTo` window, `includeInTypicalWeek`, and a
+  `seriesId` shared across every day-of-week row from the same "add
+  recurring activity" submission (so editing/deleting the whole series
+  updates all of them at once). Can be shared by more than one kid via
+  `kidIds`.
 - **exceptions** — a one-off event tied to a specific date. Also shareable
-  via `kidIds`.
+  via `kidIds`. Also how "edit just this occurrence" of a recurring activity
+  is represented (the original day gets skipped via `excludeDates`, and a
+  one-off exception is created for that date).
+- **meals** — `{ date, mealType: "lunch" | "dinner", title, color, kidIds }`.
+  Dated, not recurring. Empty `kidIds` means the whole family.
+- **schoolSubjects** — `{ title, color, kidIds, daysOfWeek, startTime,
+  endTime }`. One record holds every day it occurs on directly (not a
+  separate row per day) — there's no per-occurrence exception concept here,
+  since the timetable is always just the recurring template.
+- **notes** — `{ planner, meals, school }`, one independent free-text field
+  per planner's print view.
+
+Each planner's own Save/Load file is a smaller, self-contained shape (see
+`PlannerExport`/`MealsExport`/`SchoolExport` in `src/lib/plan-store.tsx`) —
+family name + kids + that planner's own data + its own notes — rather than
+the full `PlanData` above.
 
 ## Scripts
 
@@ -95,13 +133,6 @@ persisted to `localStorage` and mirrored by the Save/Load file:
 
 Open a pull request against `main`. CI runs lint, type-check, tests, and a
 build; the Claude Code review workflow will also leave comments on the diff.
-
-## Roadmap
-
-- **v2: External calendar sync** — an explicit, opt-in way to push events to
-  a caregiver's (e.g. a nanny's) Google Calendar, so their calendar reflects
-  the current week's plan. Local-first stays the default; sync would be an
-  add-on, not a requirement to use the app.
 
 ## License
 
