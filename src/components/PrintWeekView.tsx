@@ -39,8 +39,15 @@ function addMinutes(time: string, minutes: number): string {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
 
+function minutesToHHMM(minutes: number): string {
+  const h = Math.floor(minutes / 60) % 24;
+  const m = minutes % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
 export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabels }: Props) {
   const t = useTranslations("Print");
+  const tPlanner = useTranslations("Planner");
   const [notes, setNotes] = useState("");
   const [checkedDays, setCheckedDays] = useState<boolean[]>(() => Array(7).fill(true));
   // Keyed by seriesId (not instance id) so every day-of-week occurrence of
@@ -53,6 +60,19 @@ export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabel
   const [checkedKids, setCheckedKids] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(kids.map((k) => [k.id, true]))
   );
+  // A sensible auto-computed starting window (tight around the initially
+  // visible events), which the user can then widen or narrow by hand — the
+  // window no longer readjusts itself afterward as events are checked or
+  // unchecked, since the whole point is letting the user pin it down.
+  const [timeWindow, setTimeWindow] = useState(() => {
+    const defaultTimed = instances.filter((i) => i.defaultChecked && i.startTime);
+    return computeTimeRange(
+      defaultTimed.map((i) => ({
+        start: timeToMinutes(i.startTime!),
+        end: timeToMinutes(i.endTime ?? addMinutes(i.startTime!, DEFAULT_DURATION_MINUTES)),
+      }))
+    );
+  });
   const printRef = useRef<HTMLDivElement>(null);
 
   const fileName =
@@ -86,15 +106,19 @@ export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabel
       return next;
     });
   }
-  const timedInstances = activeInstances.filter((i) => i.startTime);
-
-  const range = computeTimeRange(
-    timedInstances.map((i) => ({
-      start: timeToMinutes(i.startTime!),
-      end: timeToMinutes(i.endTime ?? addMinutes(i.startTime!, DEFAULT_DURATION_MINUTES)),
-    }))
-  );
+  const range = timeWindow;
   const ticks = hourTicks(range);
+
+  function handleTimeWindowChange(edge: "start" | "end", value: string) {
+    if (!value) return;
+    const minutes = timeToMinutes(value);
+    setTimeWindow((prev) => {
+      if (edge === "start") {
+        return minutes < prev.endMinutes ? { ...prev, startMinutes: minutes } : prev;
+      }
+      return minutes > prev.startMinutes ? { ...prev, endMinutes: minutes } : prev;
+    });
+  }
 
   function entriesFor(dayIndex: number, kidId: string) {
     return activeInstances.filter((i) => i.dayIndex === dayIndex && i.kidIds.includes(kidId));
@@ -116,7 +140,7 @@ export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabel
         <PrintButton targetRef={printRef} fileName={fileName} />
       </div>
 
-      <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <fieldset className="rounded-md border border-gray-200 p-3 text-sm dark:border-gray-800">
           <legend className="px-1 font-semibold">{t("daysToInclude")}</legend>
           <div className="mt-1 flex flex-wrap gap-3">
@@ -152,6 +176,30 @@ export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabel
                 </span>
               </label>
             ))}
+          </div>
+        </fieldset>
+
+        <fieldset className="rounded-md border border-gray-200 p-3 text-sm dark:border-gray-800">
+          <legend className="px-1 font-semibold">{t("timeWindow")}</legend>
+          <div className="mt-1 flex gap-3">
+            <label className="flex flex-1 flex-col gap-1">
+              {tPlanner("startTime")}
+              <input
+                type="time"
+                value={minutesToHHMM(timeWindow.startMinutes)}
+                onChange={(e) => handleTimeWindowChange("start", e.target.value)}
+                className="rounded-md border border-gray-300 px-2 py-1 dark:border-gray-700 dark:bg-gray-800"
+              />
+            </label>
+            <label className="flex flex-1 flex-col gap-1">
+              {tPlanner("endTime")}
+              <input
+                type="time"
+                value={minutesToHHMM(timeWindow.endMinutes)}
+                onChange={(e) => handleTimeWindowChange("end", e.target.value)}
+                className="rounded-md border border-gray-300 px-2 py-1 dark:border-gray-700 dark:bg-gray-800"
+              />
+            </label>
           </div>
         </fieldset>
 

@@ -24,8 +24,12 @@ export function computeTimeRange(entryMinutes: { start: number; end: number }[])
     return { startMinutes: DEFAULT_RANGE_START, endMinutes: DEFAULT_RANGE_END };
   }
 
-  const earliest = Math.min(...entryMinutes.map((e) => e.start), DEFAULT_RANGE_START);
-  const latest = Math.max(...entryMinutes.map((e) => e.end), DEFAULT_RANGE_END);
+  // Tight around the actual entries — the 7am-8pm constants only apply to
+  // the fully-empty case above. Folding them into this min/max used to force
+  // every non-empty range to span at least 7am-8pm, leaving hours of empty
+  // space above/below a tightly-clustered day's real events.
+  const earliest = Math.min(...entryMinutes.map((e) => e.start));
+  const latest = Math.max(...entryMinutes.map((e) => e.end));
 
   const startMinutes = Math.max(0, Math.floor((earliest - RANGE_PADDING_MINUTES) / 60) * 60);
   const endMinutes = Math.min(24 * 60, Math.ceil((latest + RANGE_PADDING_MINUTES) / 60) * 60);
