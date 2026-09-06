@@ -47,9 +47,9 @@ export type PdfWeekData = {
   fontSizeAdjustment: number;
 };
 
-const MIN_FONT_SIZE = 4;
+export const MIN_FONT_SIZE = 4;
 
-function hexToRgb(hex: string): [number, number, number] {
+export function hexToRgb(hex: string): [number, number, number] {
   const clean = hex.replace("#", "");
   const value = parseInt(clean.length === 3 ? clean.replace(/./g, (c) => c + c) : clean, 16);
   return [(value >> 16) & 255, (value >> 8) & 255, value & 255];
@@ -58,7 +58,7 @@ function hexToRgb(hex: string): [number, number, number] {
 // jsPDF has no built-in text truncation — shrink one character at a time
 // until the string (plus an ellipsis) fits the given width, at whatever font
 // is currently set on the document.
-function truncateToWidth(pdf: import("jspdf").jsPDF, text: string, maxWidth: number): string {
+export function truncateToWidth(pdf: import("jspdf").jsPDF, text: string, maxWidth: number): string {
   if (maxWidth <= 0) return "";
   if (pdf.getTextWidth(text) <= maxWidth) return text;
   let truncated = text;
@@ -71,7 +71,7 @@ function truncateToWidth(pdf: import("jspdf").jsPDF, text: string, maxWidth: num
 // Like truncateToWidth, but always adds the ellipsis even if the text as
 // given already fits — used to mark a wrapped line as "there's more" when
 // we've decided to stop wrapping before showing every line.
-function forceEllipsis(pdf: import("jspdf").jsPDF, text: string, maxWidth: number): string {
+export function forceEllipsis(pdf: import("jspdf").jsPDF, text: string, maxWidth: number): string {
   let truncated = text;
   while (truncated.length > 0 && pdf.getTextWidth(`${truncated}…`) > maxWidth) {
     truncated = truncated.slice(0, -1);
@@ -82,7 +82,7 @@ function forceEllipsis(pdf: import("jspdf").jsPDF, text: string, maxWidth: numbe
 // Rough pt->mm line height for wrapped text at the given font size (jsPDF
 // has no line-height query API), used only to decide how many wrapped
 // lines can fit in a given box height.
-function lineHeightMm(fontSizePt: number): number {
+export function lineHeightMm(fontSizePt: number): number {
   return fontSizePt * 0.42;
 }
 
@@ -90,7 +90,7 @@ function lineHeightMm(fontSizePt: number): number {
 // however many lines actually fit in maxHeight — putting an ellipsis on the
 // last shown line if that cuts off further wrapped content — rather than
 // truncating to a single line whenever the title is long.
-function wrapToBox(
+export function wrapToBox(
   pdf: import("jspdf").jsPDF,
   text: string,
   maxWidth: number,
@@ -106,9 +106,9 @@ function wrapToBox(
   return clamped;
 }
 
-const PAGE_WIDTH = 297;
-const PAGE_HEIGHT = 210;
-const MARGIN = 8;
+export const PAGE_WIDTH = 297;
+export const PAGE_HEIGHT = 210;
+export const MARGIN = 8;
 const AXIS_WIDTH = 11;
 const DAY_GAP = 1.5;
 const KID_GAP = 0.8;

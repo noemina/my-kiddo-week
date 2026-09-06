@@ -37,6 +37,28 @@ export type ActivityException = {
   kidIds: string[];
 };
 
+export type MealType = "lunch" | "dinner";
+
+export type MealEntry = {
+  id: string;
+  date: string; // ISO date — meals are planned per specific week, not recurring
+  mealType: MealType;
+  title: string;
+  color: string | null;
+  /** Empty = whole family / unscoped; non-empty = only these kids (a per-kid split). */
+  kidIds: string[];
+};
+
+export type SchoolSubject = {
+  id: string;
+  title: string;
+  color: string | null;
+  kidIds: string[];
+  daysOfWeek: number[]; // 0 = Monday .. 6 = Sunday — same time slot on every listed day
+  startTime: string;
+  endTime: string | null;
+};
+
 export type PlanData = {
   version: 1;
   familyName: string;
@@ -47,6 +69,13 @@ export type PlanData = {
    * survive reloads and travel with save/load, instead of being lost the
    * moment you navigate away. */
   notes: string;
+  /** Separate from activities on purpose — its own weekly, dated (not
+   * recurring) plan. Shares only the kid list. */
+  meals: MealEntry[];
+  /** Separate from activities on purpose — a recurring-only weekly
+   * timetable (no dated exceptions, unlike activities). Shares only the
+   * kid list. */
+  schoolSubjects: SchoolSubject[];
 };
 
 export const EMPTY_PLAN: PlanData = {
@@ -56,6 +85,8 @@ export const EMPTY_PLAN: PlanData = {
   activities: [],
   exceptions: [],
   notes: "",
+  meals: [],
+  schoolSubjects: [],
 };
 
 const STORAGE_KEY = "my-kiddo-week:plan";
@@ -84,6 +115,8 @@ function normalizePlan(plan: PlanData): PlanData {
   return {
     ...plan,
     notes: plan.notes ?? "",
+    meals: plan.meals ?? [],
+    schoolSubjects: plan.schoolSubjects ?? [],
     activities: plan.activities.map((a) => {
       const excludeDates = a.excludeDates ?? [];
       if (a.seriesId) return { ...a, excludeDates };
@@ -147,6 +180,12 @@ export type PlanStore = {
   importPlan: (file: File) => Promise<void>;
   /** Wipes everything (kids, activities, exceptions, plan name) back to empty. */
   clearPlan: () => void;
+  addMeal: (meal: Omit<MealEntry, "id">) => void;
+  updateMeal: (id: string, patch: Partial<Omit<MealEntry, "id">>) => void;
+  removeMeal: (id: string) => void;
+  addSchoolSubject: (subject: Omit<SchoolSubject, "id">) => void;
+  updateSchoolSubject: (id: string, patch: Partial<Omit<SchoolSubject, "id">>) => void;
+  removeSchoolSubject: (id: string) => void;
 };
 
 const PlanStoreContext = createContext<PlanStore | null>(null);
@@ -202,6 +241,21 @@ export function PlanStoreProvider({ children }: { children: ReactNode }) {
         exceptions: p.exceptions
           .map((e) => ({ ...e, kidIds: e.kidIds.filter((k) => k !== id) }))
           .filter((e) => e.kidIds.length > 0),
+        // A family-wide meal (empty kidIds) is left alone — it was never
+        // tied to specific kids. A per-kid meal is trimmed, and dropped
+        // only if the removed kid was the sole kid it was scoped to.
+        meals: p.meals.reduce<MealEntry[]>((acc, m) => {
+          if (m.kidIds.length === 0) {
+            acc.push(m);
+            return acc;
+          }
+          const remaining = m.kidIds.filter((k) => k !== id);
+          if (remaining.length > 0) acc.push({ ...m, kidIds: remaining });
+          return acc;
+        }, []),
+        schoolSubjects: p.schoolSubjects
+          .map((s) => ({ ...s, kidIds: s.kidIds.filter((k) => k !== id) }))
+          .filter((s) => s.kidIds.length > 0),
       })),
     addActivity: (activity) =>
       setPlan((p) => ({
@@ -253,6 +307,29 @@ export function PlanStoreProvider({ children }: { children: ReactNode }) {
       setPlan(normalizePlan(parsed));
     },
     clearPlan: () => setPlan(EMPTY_PLAN),
+    addMeal: (meal) =>
+      setPlan((p) => ({ ...p, meals: [...p.meals, { ...meal, id: newId() }] })),
+    updateMeal: (id, patch) =>
+      setPlan((p) => ({
+        ...p,
+        meals: p.meals.map((m) => (m.id === id ? { ...m, ...patch } : m)),
+      })),
+    removeMeal: (id) => setPlan((p) => ({ ...p, meals: p.meals.filter((m) => m.id !== id) })),
+    addSchoolSubject: (subject) =>
+      setPlan((p) => ({
+        ...p,
+        schoolSubjects: [...p.schoolSubjects, { ...subject, id: newId() }],
+      })),
+    updateSchoolSubject: (id, patch) =>
+      setPlan((p) => ({
+        ...p,
+        schoolSubjects: p.schoolSubjects.map((s) => (s.id === id ? { ...s, ...patch } : s)),
+      })),
+    removeSchoolSubject: (id) =>
+      setPlan((p) => ({
+        ...p,
+        schoolSubjects: p.schoolSubjects.filter((s) => s.id !== id),
+      })),
   };
 
   return <PlanStoreContext.Provider value={store}>{children}</PlanStoreContext.Provider>;

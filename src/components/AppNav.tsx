@@ -7,7 +7,11 @@ import { usePlanStore } from "@/lib/plan-store";
 import { LocaleSwitcher } from "@/components/LocaleSwitcher";
 import { Logo } from "@/components/Logo";
 
-export function AppNav({ active }: { active: "planner" | "kids" }) {
+export function AppNav({
+  active,
+}: {
+  active: "planner" | "kids" | "meals" | "school";
+}) {
   const t = useTranslations("Nav");
   const tStorage = useTranslations("Storage");
   const { exportPlan, importPlan, clearPlan } = usePlanStore();
@@ -46,6 +50,12 @@ export function AppNav({ active }: { active: "planner" | "kids" }) {
           </Link>
           <Link href="/kids" className={active === "kids" ? "text-indigo-600" : "text-gray-500"}>
             {t("kids")}
+          </Link>
+          <Link href="/meals" className={active === "meals" ? "text-indigo-600" : "text-gray-500"}>
+            {t("meals")}
+          </Link>
+          <Link href="/school" className={active === "school" ? "text-indigo-600" : "text-gray-500"}>
+            {t("school")}
           </Link>
         </nav>
       </div>
