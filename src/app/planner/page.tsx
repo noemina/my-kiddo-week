@@ -7,6 +7,7 @@ import { AppNav } from "@/components/AppNav";
 import { WeekGrid } from "@/components/WeekGrid";
 import { EntryEditModal } from "@/components/EntryEditModal";
 import { ColorPicker } from "@/components/ColorPicker";
+import { DataControls } from "@/components/DataControls";
 import { usePlanStore, newId } from "@/lib/plan-store";
 import { getWeekSchedule, type ScheduleEntry } from "@/lib/planner-data";
 import { addDays, formatDayHeader, isoDate, startOfWeek, weekdayName } from "@/lib/week";
@@ -15,7 +16,14 @@ export default function PlannerPage() {
   const t = useTranslations("Planner");
   const tErr = useTranslations("PlannerErrors");
   const locale = useLocale();
-  const { plan, addActivity, addException } = usePlanStore();
+  const {
+    plan,
+    addActivity,
+    addException,
+    exportPlannerData,
+    importPlannerData,
+    clearPlannerData,
+  } = usePlanStore();
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()));
   const [activityError, setActivityError] = useState<string | null>(null);
   const [exceptionError, setExceptionError] = useState<string | null>(null);
@@ -136,6 +144,19 @@ export default function PlannerPage() {
               {t("printThisWeek")}
             </Link>
           </div>
+        </div>
+
+        <div className="mt-4">
+          <DataControls
+            onSave={exportPlannerData}
+            onLoad={importPlannerData}
+            onClear={clearPlannerData}
+            saveLabel={t("saveData")}
+            loadLabel={t("loadData")}
+            clearLabel={t("clearAllData")}
+            clearConfirmMessage={t("clearAllConfirm")}
+            importErrorMessage={t("importError")}
+          />
         </div>
 
         <div className="mt-6">

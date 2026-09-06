@@ -59,16 +59,26 @@ export type SchoolSubject = {
   endTime: string | null;
 };
 
+/** One independent notes field per planner — the activities planner (both
+ * the dated and typical print views share this one), meals, and school each
+ * have their own text, since what you'd jot down for one has nothing to do
+ * with the others. */
+export type PlanNotes = {
+  planner: string;
+  meals: string;
+  school: string;
+};
+
 export type PlanData = {
   version: 1;
   familyName: string;
   kids: Kid[];
   activities: Activity[];
   exceptions: ActivityException[];
-  /** Free-text notes shown/edited on the print views — persisted so they
-   * survive reloads and travel with save/load, instead of being lost the
-   * moment you navigate away. */
-  notes: string;
+  /** Free-text notes shown/edited on each planner's print view — persisted
+   * so they survive reloads and travel with save/load, instead of being
+   * lost the moment you navigate away. */
+  notes: PlanNotes;
   /** Separate from activities on purpose — its own weekly, dated (not
    * recurring) plan. Shares only the kid list. */
   meals: MealEntry[];
@@ -84,7 +94,7 @@ export const EMPTY_PLAN: PlanData = {
   kids: [],
   activities: [],
   exceptions: [],
-  notes: "",
+  notes: { planner: "", meals: "", school: "" },
   meals: [],
   schoolSubjects: [],
 };
@@ -103,39 +113,136 @@ function isPlanData(value: unknown): value is PlanData {
   );
 }
 
+// Legacy activities predate seriesId — each day-of-week was saved as its own
+// row with no link back to the others created in the same "add recurring
+// activity" submission. Reconstruct that link with a best-effort match on
+// everything but the day itself, so existing multi-day activities get
+// whole-series editing without the user having to re-enter them.
+function normalizeActivities(activities: Activity[]): Activity[] {
+  const seriesKeyToId = new Map<string, string>();
+  return activities.map((a) => {
+    const excludeDates = a.excludeDates ?? [];
+    if (a.seriesId) return { ...a, excludeDates };
+    const key = [
+      a.title,
+      a.startTime,
+      a.endTime,
+      a.location,
+      a.category,
+      [...a.kidIds].sort().join(","),
+    ].join("|");
+    let seriesId = seriesKeyToId.get(key);
+    if (!seriesId) {
+      seriesId = newId();
+      seriesKeyToId.set(key, seriesId);
+    }
+    return { ...a, excludeDates, seriesId };
+  });
+}
+
+// A pre-item-14 plan's `notes` was a single string (shared across every
+// print view) — migrate it into the "planner" slot specifically, since that
+// was the only print view notes existed on at the time.
+function normalizeNotes(notes: unknown): PlanNotes {
+  if (typeof notes === "string") return { planner: notes, meals: "", school: "" };
+  const n = (notes ?? {}) as Partial<PlanNotes>;
+  return { planner: n.planner ?? "", meals: n.meals ?? "", school: n.school ?? "" };
+}
+
 // Older exported/stored plans predate excludeDates/seriesId/notes — default
 // them in rather than letting every reader guard against undefined.
 function normalizePlan(plan: PlanData): PlanData {
-  // Legacy activities predate seriesId — each day-of-week was saved as its
-  // own row with no link back to the others created in the same "add
-  // recurring activity" submission. Reconstruct that link with a best-effort
-  // match on everything but the day itself, so existing multi-day activities
-  // get whole-series editing without the user having to re-enter them.
-  const seriesKeyToId = new Map<string, string>();
   return {
     ...plan,
-    notes: plan.notes ?? "",
+    notes: normalizeNotes(plan.notes),
     meals: plan.meals ?? [],
     schoolSubjects: plan.schoolSubjects ?? [],
-    activities: plan.activities.map((a) => {
-      const excludeDates = a.excludeDates ?? [];
-      if (a.seriesId) return { ...a, excludeDates };
-      const key = [
-        a.title,
-        a.startTime,
-        a.endTime,
-        a.location,
-        a.category,
-        [...a.kidIds].sort().join(","),
-      ].join("|");
-      let seriesId = seriesKeyToId.get(key);
-      if (!seriesId) {
-        seriesId = newId();
-        seriesKeyToId.set(key, seriesId);
-      }
-      return { ...a, excludeDates, seriesId };
-    }),
+    activities: normalizeActivities(plan.activities),
   };
+}
+
+// Upserts by id: an incoming kid (from a loaded file) overwrites a local
+// kid sharing its id, but kids only present locally are left untouched —
+// loading e.g. a School file should restore/refresh the kids it needs
+// without deleting kids that only Meals or the Planner currently use.
+function mergeKids(existing: Kid[], incoming: Kid[]): Kid[] {
+  const byId = new Map(existing.map((k) => [k.id, k] as const));
+  for (const k of incoming) byId.set(k.id, k);
+  return Array.from(byId.values());
+}
+
+function downloadJson(data: unknown, fileName: string) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function safeFileNamePart(value: string): string {
+  return (value || "my-kiddo-week").trim().replace(/[^a-z0-9-_]+/gi, "-") || "my-kiddo-week";
+}
+
+// Each planner's Save/Load is self-contained (family name + kids + that
+// planner's own data + its own notes) so the file works standalone even on
+// a browser with no kids set up yet — not just a fragment that assumes the
+// referenced kids already exist.
+export type PlannerExport = {
+  version: 1;
+  kind: "planner";
+  familyName: string;
+  kids: Kid[];
+  activities: Activity[];
+  exceptions: ActivityException[];
+  notes: string;
+};
+
+export type MealsExport = {
+  version: 1;
+  kind: "meals";
+  familyName: string;
+  kids: Kid[];
+  meals: MealEntry[];
+  notes: string;
+};
+
+export type SchoolExport = {
+  version: 1;
+  kind: "school";
+  familyName: string;
+  kids: Kid[];
+  schoolSubjects: SchoolSubject[];
+  notes: string;
+};
+
+function isPlannerExport(value: unknown): value is PlannerExport {
+  if (!value || typeof value !== "object") return false;
+  const v = value as Record<string, unknown>;
+  return (
+    v.version === 1 &&
+    v.kind === "planner" &&
+    Array.isArray(v.kids) &&
+    Array.isArray(v.activities) &&
+    Array.isArray(v.exceptions)
+  );
+}
+
+function isMealsExport(value: unknown): value is MealsExport {
+  if (!value || typeof value !== "object") return false;
+  const v = value as Record<string, unknown>;
+  return v.version === 1 && v.kind === "meals" && Array.isArray(v.kids) && Array.isArray(v.meals);
+}
+
+function isSchoolExport(value: unknown): value is SchoolExport {
+  if (!value || typeof value !== "object") return false;
+  const v = value as Record<string, unknown>;
+  return (
+    v.version === 1 && v.kind === "school" && Array.isArray(v.kids) && Array.isArray(v.schoolSubjects)
+  );
 }
 
 function loadFromStorage(): PlanData {
@@ -159,7 +266,7 @@ export type PlanStore = {
   plan: PlanData;
   hydrated: boolean;
   setFamilyName: (name: string) => void;
-  setNotes: (notes: string) => void;
+  setNotes: (scope: keyof PlanNotes, value: string) => void;
   addKid: (kid: Omit<Kid, "id">) => void;
   updateKid: (id: string, patch: Partial<Omit<Kid, "id">>) => void;
   removeKid: (id: string) => void;
@@ -176,16 +283,25 @@ export type PlanStore = {
   addException: (exception: Omit<ActivityException, "id">) => void;
   updateException: (id: string, patch: Partial<Omit<ActivityException, "id">>) => void;
   removeException: (id: string) => void;
-  exportPlan: () => void;
-  importPlan: (file: File) => Promise<void>;
-  /** Wipes everything (kids, activities, exceptions, plan name) back to empty. */
-  clearPlan: () => void;
+  /** Self-contained (family name + kids + activities/exceptions + planner
+   * notes) so the file works standalone, e.g. on a browser with no kids yet. */
+  exportPlannerData: () => void;
+  importPlannerData: (file: File) => Promise<void>;
+  /** Clears only activities/exceptions/planner-notes — kids, meals, and
+   * school data are untouched. */
+  clearPlannerData: () => void;
   addMeal: (meal: Omit<MealEntry, "id">) => void;
   updateMeal: (id: string, patch: Partial<Omit<MealEntry, "id">>) => void;
   removeMeal: (id: string) => void;
+  exportMealsData: () => void;
+  importMealsData: (file: File) => Promise<void>;
+  clearMealsData: () => void;
   addSchoolSubject: (subject: Omit<SchoolSubject, "id">) => void;
   updateSchoolSubject: (id: string, patch: Partial<Omit<SchoolSubject, "id">>) => void;
   removeSchoolSubject: (id: string) => void;
+  exportSchoolData: () => void;
+  importSchoolData: (file: File) => Promise<void>;
+  clearSchoolData: () => void;
 };
 
 const PlanStoreContext = createContext<PlanStore | null>(null);
@@ -224,7 +340,8 @@ export function PlanStoreProvider({ children }: { children: ReactNode }) {
     plan,
     hydrated,
     setFamilyName: (name) => setPlan((p) => ({ ...p, familyName: name })),
-    setNotes: (notes) => setPlan((p) => ({ ...p, notes })),
+    setNotes: (scope, value) =>
+      setPlan((p) => ({ ...p, notes: { ...p.notes, [scope]: value } })),
     addKid: (kid) => setPlan((p) => ({ ...p, kids: [...p.kids, { ...kid, id: newId() }] })),
     updateKid: (id, patch) =>
       setPlan((p) => ({
@@ -288,25 +405,38 @@ export function PlanStoreProvider({ children }: { children: ReactNode }) {
       })),
     removeException: (id) =>
       setPlan((p) => ({ ...p, exceptions: p.exceptions.filter((e) => e.id !== id) })),
-    exportPlan: () => {
-      const blob = new Blob([JSON.stringify(plan, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      const safeName = (plan.familyName || "my-kiddo-week").trim().replace(/[^a-z0-9-_]+/gi, "-");
-      a.download = `${safeName || "my-kiddo-week"}.kiddoweek.json`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
+    exportPlannerData: () =>
+      downloadJson(
+        {
+          version: 1,
+          kind: "planner",
+          familyName: plan.familyName,
+          kids: plan.kids,
+          activities: plan.activities,
+          exceptions: plan.exceptions,
+          notes: plan.notes.planner,
+        },
+        `${safeFileNamePart(plan.familyName)}-planner.kiddoweek.json`
+      ),
+    importPlannerData: async (file) => {
+      const parsed = JSON.parse(await file.text());
+      if (!isPlannerExport(parsed)) throw new Error("invalid");
+      setPlan((p) => ({
+        ...p,
+        familyName: p.familyName || parsed.familyName,
+        kids: mergeKids(p.kids, parsed.kids),
+        activities: normalizeActivities(parsed.activities),
+        exceptions: parsed.exceptions,
+        notes: { ...p.notes, planner: parsed.notes ?? "" },
+      }));
     },
-    importPlan: async (file) => {
-      const text = await file.text();
-      const parsed = JSON.parse(text);
-      if (!isPlanData(parsed)) throw new Error("invalid");
-      setPlan(normalizePlan(parsed));
-    },
-    clearPlan: () => setPlan(EMPTY_PLAN),
+    clearPlannerData: () =>
+      setPlan((p) => ({
+        ...p,
+        activities: [],
+        exceptions: [],
+        notes: { ...p.notes, planner: "" },
+      })),
     addMeal: (meal) =>
       setPlan((p) => ({ ...p, meals: [...p.meals, { ...meal, id: newId() }] })),
     updateMeal: (id, patch) =>
@@ -315,6 +445,31 @@ export function PlanStoreProvider({ children }: { children: ReactNode }) {
         meals: p.meals.map((m) => (m.id === id ? { ...m, ...patch } : m)),
       })),
     removeMeal: (id) => setPlan((p) => ({ ...p, meals: p.meals.filter((m) => m.id !== id) })),
+    exportMealsData: () =>
+      downloadJson(
+        {
+          version: 1,
+          kind: "meals",
+          familyName: plan.familyName,
+          kids: plan.kids,
+          meals: plan.meals,
+          notes: plan.notes.meals,
+        },
+        `${safeFileNamePart(plan.familyName)}-meals.kiddoweek.json`
+      ),
+    importMealsData: async (file) => {
+      const parsed = JSON.parse(await file.text());
+      if (!isMealsExport(parsed)) throw new Error("invalid");
+      setPlan((p) => ({
+        ...p,
+        familyName: p.familyName || parsed.familyName,
+        kids: mergeKids(p.kids, parsed.kids),
+        meals: parsed.meals,
+        notes: { ...p.notes, meals: parsed.notes ?? "" },
+      }));
+    },
+    clearMealsData: () =>
+      setPlan((p) => ({ ...p, meals: [], notes: { ...p.notes, meals: "" } })),
     addSchoolSubject: (subject) =>
       setPlan((p) => ({
         ...p,
@@ -330,6 +485,31 @@ export function PlanStoreProvider({ children }: { children: ReactNode }) {
         ...p,
         schoolSubjects: p.schoolSubjects.filter((s) => s.id !== id),
       })),
+    exportSchoolData: () =>
+      downloadJson(
+        {
+          version: 1,
+          kind: "school",
+          familyName: plan.familyName,
+          kids: plan.kids,
+          schoolSubjects: plan.schoolSubjects,
+          notes: plan.notes.school,
+        },
+        `${safeFileNamePart(plan.familyName)}-school.kiddoweek.json`
+      ),
+    importSchoolData: async (file) => {
+      const parsed = JSON.parse(await file.text());
+      if (!isSchoolExport(parsed)) throw new Error("invalid");
+      setPlan((p) => ({
+        ...p,
+        familyName: p.familyName || parsed.familyName,
+        kids: mergeKids(p.kids, parsed.kids),
+        schoolSubjects: parsed.schoolSubjects,
+        notes: { ...p.notes, school: parsed.notes ?? "" },
+      }));
+    },
+    clearSchoolData: () =>
+      setPlan((p) => ({ ...p, schoolSubjects: [], notes: { ...p.notes, school: "" } })),
   };
 
   return <PlanStoreContext.Provider value={store}>{children}</PlanStoreContext.Provider>;

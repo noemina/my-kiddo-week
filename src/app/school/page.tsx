@@ -7,6 +7,7 @@ import { AppNav } from "@/components/AppNav";
 import { SchoolWeekGrid } from "@/components/SchoolWeekGrid";
 import { SubjectEditModal } from "@/components/SubjectEditModal";
 import { ColorPicker } from "@/components/ColorPicker";
+import { DataControls } from "@/components/DataControls";
 import { usePlanStore, type PlanData } from "@/lib/plan-store";
 import { getSchoolWeekSchedule } from "@/lib/school-data";
 import type { SchoolScheduleEntry } from "@/lib/school-data";
@@ -16,7 +17,13 @@ export default function SchoolPage() {
   const t = useTranslations("School");
   const tPlanner = useTranslations("Planner");
   const locale = useLocale();
-  const { plan, addSchoolSubject } = usePlanStore();
+  const {
+    plan,
+    addSchoolSubject,
+    exportSchoolData,
+    importSchoolData,
+    clearSchoolData,
+  } = usePlanStore();
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<SchoolScheduleEntry | null>(null);
 
@@ -56,6 +63,19 @@ export default function SchoolPage() {
           </Link>
         </div>
         <p className="mt-1 text-xs text-gray-500">{t("hint")}</p>
+
+        <div className="mt-4">
+          <DataControls
+            onSave={exportSchoolData}
+            onLoad={importSchoolData}
+            onClear={clearSchoolData}
+            saveLabel={t("saveData")}
+            loadLabel={t("loadData")}
+            clearLabel={t("clearAllData")}
+            clearConfirmMessage={t("clearAllConfirm")}
+            importErrorMessage={t("importError")}
+          />
+        </div>
 
         <div className="mt-6">
           <SchoolWeekGrid

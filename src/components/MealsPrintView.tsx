@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import type { MealsWeekDay } from "@/lib/meals-data";
-import type { Kid, MealEntry } from "@/lib/plan-store";
+import { usePlanStore, type Kid, type MealEntry } from "@/lib/plan-store";
 import { generateMealsPdf, type PdfMealDay, type PdfMealEntry } from "@/lib/meals-pdf-export";
 
 function sanitizeFileNamePart(value: string): string {
@@ -22,11 +22,43 @@ type Props = {
 export function MealsPrintView({ familyName, weekLabel, days, dayLabels, kids }: Props) {
   const t = useTranslations("Meals");
   const tPrint = useTranslations("Print");
+  const { plan, setNotes } = usePlanStore();
+  const notes = plan.notes.meals;
   const [checkedDays, setCheckedDays] = useState<boolean[]>(() => Array(7).fill(true));
   const [checkedKids, setCheckedKids] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(kids.map((k) => [k.id, true]))
   );
   const [busy, setBusy] = useState(false);
+  const notesFileInputRef = useRef<HTMLInputElement>(null);
+  const [notesImportError, setNotesImportError] = useState(false);
+
+  function handleSaveNotes() {
+    const blob = new Blob([JSON.stringify({ version: 1, notes }, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "my-kiddo-week-notes.json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  async function handleLoadNotesFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      const parsed = JSON.parse(await file.text());
+      if (typeof parsed?.notes !== "string") throw new Error("invalid");
+      setNotes("meals", parsed.notes);
+      setNotesImportError(false);
+    } catch {
+      setNotesImportError(true);
+    }
+  }
 
   const fileName =
     [sanitizeFileNamePart(familyName || "my-kiddo-week"), sanitizeFileNamePart(weekLabel)]
@@ -69,6 +101,8 @@ export function MealsPrintView({ familyName, weekLabel, days, dayLabels, kids }:
           days: pdfDays,
           lunchLabel: t("lunch"),
           dinnerLabel: t("dinner"),
+          notes,
+          notesLabel: tPrint("notes"),
         },
         fileName
       );
@@ -157,6 +191,48 @@ export function MealsPrintView({ familyName, weekLabel, days, dayLabels, kids }:
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="mt-6">
+        <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+          <label className="text-sm font-semibold" htmlFor="meals-print-notes">
+            {tPrint("notes")}
+          </label>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={handleSaveNotes}
+              className="text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100"
+            >
+              {tPrint("saveNotes")}
+            </button>
+            <button
+              type="button"
+              onClick={() => notesFileInputRef.current?.click()}
+              className="text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100"
+            >
+              {tPrint("loadNotes")}
+            </button>
+            <input
+              ref={notesFileInputRef}
+              type="file"
+              accept="application/json"
+              className="hidden"
+              onChange={handleLoadNotesFile}
+            />
+          </div>
+        </div>
+        <textarea
+          id="meals-print-notes"
+          rows={3}
+          value={notes}
+          onChange={(e) => setNotes("meals", e.target.value)}
+          placeholder={tPrint("notesPlaceholder")}
+          className="w-full rounded-md border border-gray-300 p-2 text-sm dark:border-gray-700 dark:bg-gray-900"
+        />
+        {notesImportError && (
+          <p className="mt-1 text-xs text-red-600">{tPrint("notesImportError")}</p>
+        )}
       </div>
     </div>
   );

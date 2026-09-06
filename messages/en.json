@@ -4,11 +4,7 @@
     "planner": "Planner",
     "kids": "Kids",
     "meals": "Meals",
-    "school": "School",
-    "save": "Save plan",
-    "load": "Load plan",
-    "clearAll": "Clear all data",
-    "clearAllConfirm": "This will permanently delete all kids, activities, and events from this browser. This can't be undone. Continue?"
+    "school": "School"
   },
   "Landing": {
     "heroTitle": "One calm place for your kids' whole week",
@@ -42,8 +38,7 @@
     "addButton": "Add kid"
   },
   "Storage": {
-    "hint": "Your plan is saved only in this browser. Use Save plan/Load plan (top right) to back it up or move it to another device.",
-    "importError": "That file doesn't look like a valid my-kiddo-week plan."
+    "hint": "Kids are saved only in this browser. They're included whenever you use Save/Load on the Planner, Meals, or School page, so back those up to keep your kids too."
   },
   "Planner": {
     "prev": "← Prev",
@@ -71,7 +66,12 @@
     "date": "Date",
     "notesPlaceholder": "Notes (optional)",
     "submitException": "Add one-off event",
-    "noKidsMessage": "No kids added yet — head to the Kids page to add your first one."
+    "noKidsMessage": "No kids added yet — head to the Kids page to add your first one.",
+    "saveData": "Save",
+    "loadData": "Load",
+    "clearAllData": "Clear all",
+    "clearAllConfirm": "This will permanently delete all activities and one-off events from this browser. This can't be undone. Continue?",
+    "importError": "That file doesn't look like a valid planner file."
   },
   "Edit": {
     "editTitle": "Edit event",
@@ -104,7 +104,10 @@
     "noKidsMessage": "Add kids first to build a printable week.",
     "typicalWeek": "Typical Week",
     "notes": "Notes",
-    "notesPlaceholder": "Add any notes to print with this week..."
+    "notesPlaceholder": "Add any notes to print with this week...",
+    "saveNotes": "Save notes",
+    "loadNotes": "Load notes",
+    "notesImportError": "That file doesn't look like a valid notes file."
   },
   "Meals": {
     "prev": "← Prev",
@@ -126,7 +129,12 @@
     "editMeal": "Edit meal",
     "save": "Save",
     "delete": "Delete",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "saveData": "Save",
+    "loadData": "Load",
+    "clearAllData": "Clear all",
+    "clearAllConfirm": "This will permanently delete all meals from this browser. This can't be undone. Continue?",
+    "importError": "That file doesn't look like a valid meals file."
   },
   "School": {
     "title": "School",
@@ -143,7 +151,12 @@
     "invalidInput": "Invalid input",
     "save": "Save",
     "delete": "Delete",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "saveData": "Save",
+    "loadData": "Load",
+    "clearAllData": "Clear all",
+    "clearAllConfirm": "This will permanently delete the whole school timetable from this browser. This can't be undone. Continue?",
+    "importError": "That file doesn't look like a valid school file."
   },
   "Locale": {
     "label": "Language",

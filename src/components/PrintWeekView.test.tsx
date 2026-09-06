@@ -61,6 +61,7 @@ describe("PrintWeekView", () => {
       kids,
       instances,
       dayLabels,
+      notesScope: "planner",
     });
 
     expect(screen.getAllByText("Swimming")).toHaveLength(2); // selector label + grid entry
@@ -74,6 +75,7 @@ describe("PrintWeekView", () => {
       kids,
       instances,
       dayLabels,
+      notesScope: "planner",
     });
 
     const swimmingCheckbox = screen
@@ -95,6 +97,7 @@ describe("PrintWeekView", () => {
       kids,
       instances,
       dayLabels,
+      notesScope: "planner",
     });
 
     expect(screen.getAllByText("Tuesday")).toHaveLength(2); // day checkbox label + column header

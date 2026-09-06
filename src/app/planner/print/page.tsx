@@ -36,6 +36,7 @@ function PlannerPrintPageInner() {
         kids={kids}
         instances={instances}
         dayLabels={dayLabels}
+        notesScope="planner"
       />
     </main>
   );

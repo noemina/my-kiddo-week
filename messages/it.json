@@ -4,11 +4,7 @@
     "planner": "Pianificazione",
     "kids": "Bambini",
     "meals": "Pasti",
-    "school": "Scuola",
-    "save": "Salva piano",
-    "load": "Carica piano",
-    "clearAll": "Cancella tutto",
-    "clearAllConfirm": "Questo eliminerà definitivamente tutti i bambini, le attività e gli eventi da questo browser. L'operazione non può essere annullata. Continuare?"
+    "school": "Scuola"
   },
   "Landing": {
     "heroTitle": "Un posto tranquillo per tutta la settimana dei tuoi bambini",
@@ -42,8 +38,7 @@
     "addButton": "Aggiungi"
   },
   "Storage": {
-    "hint": "Il tuo piano è salvato solo in questo browser. Usa \"Salva piano\"/\"Carica piano\" (in alto a destra) per farne una copia di sicurezza o spostarlo su un altro dispositivo.",
-    "importError": "Questo file non sembra essere un piano my-kiddo-week valido."
+    "hint": "I bambini sono salvati solo in questo browser. Sono inclusi ogni volta che usi Salva/Carica nella pagina Pianificazione, Pasti o Scuola — salva quelle per conservare anche i bambini."
   },
   "Planner": {
     "prev": "← Precedente",
@@ -71,7 +66,12 @@
     "date": "Data",
     "notesPlaceholder": "Note (facoltativo)",
     "submitException": "Aggiungi evento singolo",
-    "noKidsMessage": "Ancora nessun bambino aggiunto — vai alla pagina Bambini per aggiungere il primo."
+    "noKidsMessage": "Ancora nessun bambino aggiunto — vai alla pagina Bambini per aggiungere il primo.",
+    "saveData": "Salva",
+    "loadData": "Carica",
+    "clearAllData": "Cancella tutto",
+    "clearAllConfirm": "Questo eliminerà definitivamente tutte le attività e gli eventi singoli da questo browser. L'operazione non può essere annullata. Continuare?",
+    "importError": "Questo file non sembra essere un file di pianificazione valido."
   },
   "Edit": {
     "editTitle": "Modifica evento",
@@ -104,7 +104,10 @@
     "noKidsMessage": "Aggiungi prima dei bambini per creare una settimana stampabile.",
     "typicalWeek": "Settimana tipo",
     "notes": "Note",
-    "notesPlaceholder": "Aggiungi note da stampare con questa settimana..."
+    "notesPlaceholder": "Aggiungi note da stampare con questa settimana...",
+    "saveNotes": "Salva note",
+    "loadNotes": "Carica note",
+    "notesImportError": "Questo file non sembra essere un file di note valido."
   },
   "Meals": {
     "prev": "← Precedente",
@@ -126,7 +129,12 @@
     "editMeal": "Modifica pasto",
     "save": "Salva",
     "delete": "Elimina",
-    "cancel": "Annulla"
+    "cancel": "Annulla",
+    "saveData": "Salva",
+    "loadData": "Carica",
+    "clearAllData": "Cancella tutto",
+    "clearAllConfirm": "Questo eliminerà definitivamente tutti i pasti da questo browser. L'operazione non può essere annullata. Continuare?",
+    "importError": "Questo file non sembra essere un file di pasti valido."
   },
   "School": {
     "title": "Scuola",
@@ -143,7 +151,12 @@
     "invalidInput": "Dati non validi",
     "save": "Salva",
     "delete": "Elimina",
-    "cancel": "Annulla"
+    "cancel": "Annulla",
+    "saveData": "Salva",
+    "loadData": "Carica",
+    "clearAllData": "Cancella tutto",
+    "clearAllConfirm": "Questo eliminerà definitivamente l'intero orario scolastico da questo browser. L'operazione non può essere annullata. Continuare?",
+    "importError": "Questo file non sembra essere un file scolastico valido."
   },
   "Locale": {
     "label": "Lingua",

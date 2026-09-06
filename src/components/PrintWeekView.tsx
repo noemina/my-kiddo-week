@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import {
@@ -32,6 +32,10 @@ type Props = {
   kids: PrintKid[];
   instances: PrintInstance[];
   dayLabels: string[]; // exactly 7, Monday first
+  /** Which planner's independent notes slot this view reads/writes — the
+   * dated and typical activities print pages share "planner"; school has
+   * its own. */
+  notesScope: "planner" | "school";
 };
 
 function addMinutes(time: string, minutes: number): string {
@@ -47,11 +51,18 @@ function minutesToHHMM(minutes: number): string {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
 
-export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabels }: Props) {
+export function PrintWeekView({
+  familyName,
+  weekLabel,
+  kids,
+  instances,
+  dayLabels,
+  notesScope,
+}: Props) {
   const t = useTranslations("Print");
   const tPlanner = useTranslations("Planner");
   const { plan, setNotes } = usePlanStore();
-  const notes = plan.notes;
+  const notes = plan.notes[notesScope];
   // Not persisted — a per-session tweak for this particular PDF, not part of
   // the saved plan data (unlike notes, which the user explicitly wants
   // stored/carried by save-load).
@@ -80,6 +91,39 @@ export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabel
       }))
     );
   });
+  const notesFileInputRef = useRef<HTMLInputElement>(null);
+  const [notesImportError, setNotesImportError] = useState(false);
+
+  // Notes get their own standalone JSON file, separate from "Save
+  // plan"/"Load plan" (the whole plan's own export) — so a set of notes can
+  // be shared/reused without dragging the rest of the plan along with it.
+  function handleSaveNotes() {
+    const blob = new Blob([JSON.stringify({ version: 1, notes }, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "my-kiddo-week-notes.json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  async function handleLoadNotesFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      const parsed = JSON.parse(await file.text());
+      if (typeof parsed?.notes !== "string") throw new Error("invalid");
+      setNotes(notesScope, parsed.notes);
+      setNotesImportError(false);
+    } catch {
+      setNotesImportError(true);
+    }
+  }
 
   const fileName =
     [sanitizeFileNamePart(familyName || "my-kiddo-week"), sanitizeFileNamePart(weekLabel)]
@@ -461,17 +505,43 @@ export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabel
       </div>
 
       <div className="mt-6">
-        <label className="mb-1 block text-sm font-semibold" htmlFor="print-notes">
-          {t("notes")}
-        </label>
+        <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+          <label className="text-sm font-semibold" htmlFor="print-notes">
+            {t("notes")}
+          </label>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={handleSaveNotes}
+              className="text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100"
+            >
+              {t("saveNotes")}
+            </button>
+            <button
+              type="button"
+              onClick={() => notesFileInputRef.current?.click()}
+              className="text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100"
+            >
+              {t("loadNotes")}
+            </button>
+            <input
+              ref={notesFileInputRef}
+              type="file"
+              accept="application/json"
+              className="hidden"
+              onChange={handleLoadNotesFile}
+            />
+          </div>
+        </div>
         <textarea
           id="print-notes"
           rows={3}
           value={notes}
-          onChange={(e) => setNotes(e.target.value)}
+          onChange={(e) => setNotes(notesScope, e.target.value)}
           placeholder={t("notesPlaceholder")}
           className="w-full rounded-md border border-gray-300 p-2 text-sm dark:border-gray-700 dark:bg-gray-900"
         />
+        {notesImportError && <p className="mt-1 text-xs text-red-600">{t("notesImportError")}</p>}
       </div>
     </div>
   );

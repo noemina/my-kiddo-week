@@ -28,6 +28,7 @@ export default function TypicalWeekPrintPage() {
         kids={kids}
         instances={instances}
         dayLabels={dayLabels}
+        notesScope="planner"
       />
     </main>
   );

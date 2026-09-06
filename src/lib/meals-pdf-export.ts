@@ -29,6 +29,8 @@ export type PdfMealsData = {
   days: PdfMealDay[];
   lunchLabel: string;
   dinnerLabel: string;
+  notes: string;
+  notesLabel: string;
 };
 
 const LABEL_WIDTH = 18;
@@ -121,8 +123,11 @@ export async function generateMealsPdf(data: PdfMealsData, fileName: string): Pr
     dayX += dayWidth + DAY_GAP;
   }
 
+  const hasNotes = data.notes.trim().length > 0;
+  const notesHeight = hasNotes ? 24 : 0;
+
   const rowsTop = headerY + DAY_HEADER_HEIGHT;
-  const rowsBottom = PAGE_HEIGHT - MARGIN;
+  const rowsBottom = PAGE_HEIGHT - MARGIN - notesHeight;
   const rowHeight = (rowsBottom - rowsTop) / 2;
 
   function drawRow(rowY: number, label: string, pick: (d: PdfMealDay) => PdfMealEntry[]) {
@@ -147,6 +152,22 @@ export async function generateMealsPdf(data: PdfMealsData, fileName: string): Pr
 
   drawRow(rowsTop, data.lunchLabel, (d) => d.lunch);
   drawRow(rowsTop + rowHeight, data.dinnerLabel, (d) => d.dinner);
+
+  if (hasNotes) {
+    const notesTop = PAGE_HEIGHT - MARGIN - notesHeight + 8;
+    pdf.setDrawColor(209, 213, 219);
+    pdf.setLineWidth(0.2);
+    pdf.line(MARGIN, notesTop - 3, PAGE_WIDTH - MARGIN, notesTop - 3);
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(9);
+    pdf.setTextColor(17, 24, 39);
+    pdf.text(data.notesLabel, MARGIN, notesTop);
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(8);
+    pdf.setTextColor(55, 65, 81);
+    const lines = pdf.splitTextToSize(data.notes, PAGE_WIDTH - MARGIN * 2);
+    pdf.text(lines, MARGIN, notesTop + 4);
+  }
 
   pdf.save(`${fileName}.pdf`);
 }

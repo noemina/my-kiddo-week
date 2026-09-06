@@ -7,6 +7,7 @@ import { AppNav } from "@/components/AppNav";
 import { MealsWeekView } from "@/components/MealsWeekView";
 import { MealEditModal } from "@/components/MealEditModal";
 import { ColorPicker } from "@/components/ColorPicker";
+import { DataControls } from "@/components/DataControls";
 import { usePlanStore, type MealEntry } from "@/lib/plan-store";
 import { getWeekMeals } from "@/lib/meals-data";
 import { addDays, formatDayHeader, isoDate, startOfWeek } from "@/lib/week";
@@ -15,7 +16,7 @@ export default function MealsPage() {
   const t = useTranslations("Meals");
   const tPlanner = useTranslations("Planner");
   const locale = useLocale();
-  const { plan, addMeal } = usePlanStore();
+  const { plan, addMeal, exportMealsData, importMealsData, clearMealsData } = usePlanStore();
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()));
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<MealEntry | null>(null);
@@ -69,6 +70,19 @@ export default function MealsPage() {
           >
             {t("printMeals")}
           </Link>
+        </div>
+
+        <div className="mt-4">
+          <DataControls
+            onSave={exportMealsData}
+            onLoad={importMealsData}
+            onClear={clearMealsData}
+            saveLabel={t("saveData")}
+            loadLabel={t("loadData")}
+            clearLabel={t("clearAllData")}
+            clearConfirmMessage={t("clearAllConfirm")}
+            importErrorMessage={t("importError")}
+          />
         </div>
 
         <div className="mt-6">

@@ -4,11 +4,7 @@
     "planner": "Planning",
     "kids": "Enfants",
     "meals": "Repas",
-    "school": "École",
-    "save": "Enregistrer le plan",
-    "load": "Charger le plan",
-    "clearAll": "Tout effacer",
-    "clearAllConfirm": "Cela supprimera définitivement tous les enfants, activités et événements de ce navigateur. Cette action est irréversible. Continuer ?"
+    "school": "École"
   },
   "Landing": {
     "heroTitle": "Un endroit calme pour toute la semaine de vos enfants",
@@ -42,8 +38,7 @@
     "addButton": "Ajouter"
   },
   "Storage": {
-    "hint": "Votre plan n'est enregistré que dans ce navigateur. Utilisez « Enregistrer le plan »/« Charger le plan » (en haut à droite) pour le sauvegarder ou le transférer sur un autre appareil.",
-    "importError": "Ce fichier ne semble pas être un plan my-kiddo-week valide."
+    "hint": "Les enfants ne sont enregistrés que dans ce navigateur. Ils sont inclus dès que vous utilisez Enregistrer/Charger sur la page Planning, Repas ou École — sauvegardez-les pour conserver vos enfants aussi."
   },
   "Planner": {
     "prev": "← Précédent",
@@ -71,7 +66,12 @@
     "date": "Date",
     "notesPlaceholder": "Notes (facultatif)",
     "submitException": "Ajouter l'événement ponctuel",
-    "noKidsMessage": "Aucun enfant ajouté pour l'instant — rendez-vous sur la page Enfants pour ajouter le premier."
+    "noKidsMessage": "Aucun enfant ajouté pour l'instant — rendez-vous sur la page Enfants pour ajouter le premier.",
+    "saveData": "Enregistrer",
+    "loadData": "Charger",
+    "clearAllData": "Tout effacer",
+    "clearAllConfirm": "Cela supprimera définitivement toutes les activités et tous les événements ponctuels de ce navigateur. Cette action est irréversible. Continuer ?",
+    "importError": "Ce fichier ne semble pas être un fichier de planning valide."
   },
   "Edit": {
     "editTitle": "Modifier l'événement",
@@ -104,7 +104,10 @@
     "noKidsMessage": "Ajoutez d'abord des enfants pour créer une semaine imprimable.",
     "typicalWeek": "Semaine type",
     "notes": "Notes",
-    "notesPlaceholder": "Ajoutez des notes à imprimer avec cette semaine..."
+    "notesPlaceholder": "Ajoutez des notes à imprimer avec cette semaine...",
+    "saveNotes": "Enregistrer les notes",
+    "loadNotes": "Charger les notes",
+    "notesImportError": "Ce fichier ne semble pas être un fichier de notes valide."
   },
   "Meals": {
     "prev": "← Précédent",
@@ -126,7 +129,12 @@
     "editMeal": "Modifier le repas",
     "save": "Enregistrer",
     "delete": "Supprimer",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "saveData": "Enregistrer",
+    "loadData": "Charger",
+    "clearAllData": "Tout effacer",
+    "clearAllConfirm": "Cela supprimera définitivement tous les repas de ce navigateur. Cette action est irréversible. Continuer ?",
+    "importError": "Ce fichier ne semble pas être un fichier de repas valide."
   },
   "School": {
     "title": "École",
@@ -143,7 +151,12 @@
     "invalidInput": "Saisie invalide",
     "save": "Enregistrer",
     "delete": "Supprimer",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "saveData": "Enregistrer",
+    "loadData": "Charger",
+    "clearAllData": "Tout effacer",
+    "clearAllConfirm": "Cela supprimera définitivement tout l'emploi du temps scolaire de ce navigateur. Cette action est irréversible. Continuer ?",
+    "importError": "Ce fichier ne semble pas être un fichier scolaire valide."
   },
   "Locale": {
     "label": "Langue",

@@ -4,11 +4,7 @@
     "planner": "Planer",
     "kids": "Kinder",
     "meals": "Mahlzeiten",
-    "school": "Schule",
-    "save": "Plan speichern",
-    "load": "Plan laden",
-    "clearAll": "Alles löschen",
-    "clearAllConfirm": "Dadurch werden alle Kinder, Aktivitäten und Termine aus diesem Browser dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden. Fortfahren?"
+    "school": "Schule"
   },
   "Landing": {
     "heroTitle": "Ein ruhiger Ort für die ganze Woche deiner Kinder",
@@ -42,8 +38,7 @@
     "addButton": "Hinzufügen"
   },
   "Storage": {
-    "hint": "Dein Plan wird nur in diesem Browser gespeichert. Nutze „Plan speichern“/„Plan laden“ (oben rechts), um ein Backup zu erstellen oder ihn auf ein anderes Gerät zu übertragen.",
-    "importError": "Diese Datei scheint kein gültiger my-kiddo-week-Plan zu sein."
+    "hint": "Kinder werden nur in diesem Browser gespeichert. Sie sind enthalten, sobald du Speichern/Laden auf der Planer-, Mahlzeiten- oder Schule-Seite nutzt — sichere diese, um auch deine Kinder zu behalten."
   },
   "Planner": {
     "prev": "← Zurück",
@@ -71,7 +66,12 @@
     "date": "Datum",
     "notesPlaceholder": "Notizen (optional)",
     "submitException": "Einmaliges Ereignis hinzufügen",
-    "noKidsMessage": "Noch keine Kinder hinzugefügt — auf der Seite Kinder das erste hinzufügen."
+    "noKidsMessage": "Noch keine Kinder hinzugefügt — auf der Seite Kinder das erste hinzufügen.",
+    "saveData": "Speichern",
+    "loadData": "Laden",
+    "clearAllData": "Alles löschen",
+    "clearAllConfirm": "Dadurch werden alle Aktivitäten und einmaligen Ereignisse aus diesem Browser dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden. Fortfahren?",
+    "importError": "Diese Datei scheint keine gültige Planer-Datei zu sein."
   },
   "Edit": {
     "editTitle": "Termin bearbeiten",
@@ -104,7 +104,10 @@
     "noKidsMessage": "Zuerst Kinder hinzufügen, um eine druckbare Woche zu erstellen.",
     "typicalWeek": "Typische Woche",
     "notes": "Notizen",
-    "notesPlaceholder": "Notizen hinzufügen, die mit dieser Woche gedruckt werden..."
+    "notesPlaceholder": "Notizen hinzufügen, die mit dieser Woche gedruckt werden...",
+    "saveNotes": "Notizen speichern",
+    "loadNotes": "Notizen laden",
+    "notesImportError": "Diese Datei scheint keine gültige Notizdatei zu sein."
   },
   "Meals": {
     "prev": "← Zurück",
@@ -126,7 +129,12 @@
     "editMeal": "Mahlzeit bearbeiten",
     "save": "Speichern",
     "delete": "Löschen",
-    "cancel": "Abbrechen"
+    "cancel": "Abbrechen",
+    "saveData": "Speichern",
+    "loadData": "Laden",
+    "clearAllData": "Alles löschen",
+    "clearAllConfirm": "Dadurch werden alle Mahlzeiten aus diesem Browser dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden. Fortfahren?",
+    "importError": "Diese Datei scheint keine gültige Mahlzeiten-Datei zu sein."
   },
   "School": {
     "title": "Schule",
@@ -143,7 +151,12 @@
     "invalidInput": "Ungültige Eingabe",
     "save": "Speichern",
     "delete": "Löschen",
-    "cancel": "Abbrechen"
+    "cancel": "Abbrechen",
+    "saveData": "Speichern",
+    "loadData": "Laden",
+    "clearAllData": "Alles löschen",
+    "clearAllConfirm": "Dadurch wird der gesamte Stundenplan aus diesem Browser dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden. Fortfahren?",
+    "importError": "Diese Datei scheint keine gültige Schul-Datei zu sein."
   },
   "Locale": {
     "label": "Sprache",
