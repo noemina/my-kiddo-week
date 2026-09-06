@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
 import { PlanStoreProvider } from "@/lib/plan-store";
+import { Footer } from "@/components/Footer";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -44,6 +45,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <NextIntlClientProvider>
           <PlanStoreProvider>{children}</PlanStoreProvider>
         </NextIntlClientProvider>
+        <Footer />
       </body>
     </html>
   );

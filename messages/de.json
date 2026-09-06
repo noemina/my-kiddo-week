@@ -67,6 +67,17 @@
     "submitException": "Einmaliges Ereignis hinzufügen",
     "noKidsMessage": "Noch keine Kinder hinzugefügt — auf der Seite Kinder das erste hinzufügen."
   },
+  "Edit": {
+    "editTitle": "Termin bearbeiten",
+    "seriesHint": "Dieser Termin wiederholt sich wöchentlich. Wähle, ob deine Änderung nur für diesen Termin oder für die ganze Serie gelten soll.",
+    "saveThisOnly": "Speichern (nur dieser Termin)",
+    "saveWholeSeries": "Speichern (ganze Serie)",
+    "deleteThisOnly": "Löschen (nur dieser Termin)",
+    "deleteWholeSeries": "Löschen (ganze Serie)",
+    "save": "Speichern",
+    "delete": "Löschen",
+    "cancel": "Abbrechen"
+  },
   "PlannerErrors": {
     "kidRequired": "Mindestens ein Kind auswählen",
     "validityRange": "Das Gültig-ab-Datum muss vor dem Gültig-bis-Datum liegen",
@@ -75,7 +86,8 @@
   },
   "Print": {
     "backToPlanner": "← Zurück zum Planer",
-    "printButton": "Als PDF speichern / Drucken",
+    "printButton": "PDF herunterladen",
+    "generatingButton": "PDF wird erstellt…",
     "daysToInclude": "Einzuschließende Tage",
     "eventsToInclude": "Einzuschließende Ereignisse",
     "noRecurringActivities": "Noch keine wiederkehrenden Aktivitäten.",

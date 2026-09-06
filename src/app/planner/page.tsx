@@ -5,18 +5,20 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { AppNav } from "@/components/AppNav";
 import { WeekGrid } from "@/components/WeekGrid";
+import { EntryEditModal } from "@/components/EntryEditModal";
 import { usePlanStore } from "@/lib/plan-store";
-import { getWeekSchedule } from "@/lib/planner-data";
+import { getWeekSchedule, type ScheduleEntry } from "@/lib/planner-data";
 import { addDays, formatDayHeader, isoDate, startOfWeek, weekdayName } from "@/lib/week";
 
 export default function PlannerPage() {
   const t = useTranslations("Planner");
   const tErr = useTranslations("PlannerErrors");
   const locale = useLocale();
-  const { plan, addActivity, removeActivity, addException, removeException } = usePlanStore();
+  const { plan, addActivity, addException } = usePlanStore();
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()));
   const [activityError, setActivityError] = useState<string | null>(null);
   const [exceptionError, setExceptionError] = useState<string | null>(null);
+  const [editing, setEditing] = useState<{ entry: ScheduleEntry; date: Date } | null>(null);
 
   const schedule = getWeekSchedule(plan, weekStart);
 
@@ -133,11 +135,17 @@ export default function PlannerPage() {
           <WeekGrid
             schedule={schedule}
             noKidsMessage={t("noKidsMessage")}
-            onDeleteEntry={(entry) =>
-              entry.kind === "recurring" ? removeActivity(entry.id) : removeException(entry.id)
-            }
+            onEntryClick={(entry, date) => setEditing({ entry, date })}
           />
         </div>
+
+        {editing && (
+          <EntryEditModal
+            entry={editing.entry}
+            date={editing.date}
+            onClose={() => setEditing(null)}
+          />
+        )}
 
         {plan.kids.length > 0 && (
           <div className="mt-10 grid gap-6 sm:grid-cols-2">

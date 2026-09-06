@@ -7,11 +7,11 @@ import type { KidSchedule, ScheduleEntry } from "@/lib/planner-data";
 function EntryRow({
   entry,
   interactive,
-  onDelete,
+  onClick,
 }: {
   entry: ScheduleEntry;
   interactive: boolean;
-  onDelete?: (entry: ScheduleEntry) => void;
+  onClick?: (entry: ScheduleEntry) => void;
 }) {
   const time = entry.startTime
     ? entry.endTime
@@ -21,26 +21,15 @@ function EntryRow({
 
   return (
     <li
-      className="rounded-md border-l-4 bg-gray-50 px-2 py-1.5 text-xs leading-tight print:bg-white"
+      className={`rounded-md border-l-4 bg-gray-50 px-2 py-1.5 text-xs leading-tight dark:bg-gray-800 print:bg-white ${
+        interactive ? "cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700" : ""
+      }`}
       style={{ borderLeftColor: entry.color ?? "#6366f1" }}
+      onClick={interactive ? () => onClick?.(entry) : undefined}
     >
-      <div className="flex items-start justify-between gap-1">
-        <div>
-          <p className="font-medium text-gray-900">{entry.title}</p>
-          {time && <p className="text-gray-500">{time}</p>}
-          {entry.location && <p className="text-gray-500">{entry.location}</p>}
-        </div>
-        {interactive && (
-          <button
-            type="button"
-            onClick={() => onDelete?.(entry)}
-            aria-label={`Delete ${entry.title}`}
-            className="text-gray-400 hover:text-red-600 print:hidden"
-          >
-            ×
-          </button>
-        )}
-      </div>
+      <p className="font-medium text-gray-900 dark:text-gray-100">{entry.title}</p>
+      {time && <p className="text-gray-500 dark:text-gray-400">{time}</p>}
+      {entry.location && <p className="text-gray-500 dark:text-gray-400">{entry.location}</p>}
     </li>
   );
 }
@@ -49,12 +38,12 @@ export function WeekGrid({
   schedule,
   interactive = true,
   noKidsMessage,
-  onDeleteEntry,
+  onEntryClick,
 }: {
   schedule: KidSchedule[];
   interactive?: boolean;
   noKidsMessage: string;
-  onDeleteEntry?: (entry: ScheduleEntry) => void;
+  onEntryClick?: (entry: ScheduleEntry, date: Date) => void;
 }) {
   const locale = useLocale();
 
@@ -65,12 +54,14 @@ export function WeekGrid({
   const days = schedule[0].days;
 
   return (
-    <div className="grid grid-cols-7 gap-2 print:gap-1">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-7 sm:gap-2 print:grid-cols-7 print:gap-1">
       {days.map((day, dayIndex) => (
         <div key={dayIndex} className="flex flex-col gap-2">
-          <div className="border-b border-gray-200 pb-1 text-center">
+          <div className="border-b border-gray-200 pb-1 text-center dark:border-gray-800">
             <p className="text-sm font-semibold">{weekdayName(dayIndex, locale)}</p>
-            <p className="text-xs text-gray-500">{formatDayHeader(day.date, locale)}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {formatDayHeader(day.date, locale)}
+            </p>
           </div>
 
           {schedule.map((kidSchedule) => (
@@ -87,7 +78,7 @@ export function WeekGrid({
                     key={entry.id}
                     entry={entry}
                     interactive={interactive}
-                    onDelete={onDeleteEntry}
+                    onClick={(e) => onEntryClick?.(e, day.date)}
                   />
                 ))}
               </ul>

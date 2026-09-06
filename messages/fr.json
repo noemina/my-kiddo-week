@@ -67,6 +67,17 @@
     "submitException": "Ajouter l'événement ponctuel",
     "noKidsMessage": "Aucun enfant ajouté pour l'instant — rendez-vous sur la page Enfants pour ajouter le premier."
   },
+  "Edit": {
+    "editTitle": "Modifier l'événement",
+    "seriesHint": "Cet événement se répète chaque semaine. Choisissez si votre modification s'applique uniquement à cette occurrence ou à toute la série.",
+    "saveThisOnly": "Enregistrer (cette occurrence)",
+    "saveWholeSeries": "Enregistrer (toute la série)",
+    "deleteThisOnly": "Supprimer (cette occurrence)",
+    "deleteWholeSeries": "Supprimer (toute la série)",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "cancel": "Annuler"
+  },
   "PlannerErrors": {
     "kidRequired": "Sélectionnez au moins un enfant",
     "validityRange": "La date de début de validité doit précéder la date de fin",
@@ -75,7 +86,8 @@
   },
   "Print": {
     "backToPlanner": "← Retour au planning",
-    "printButton": "Enregistrer en PDF / Imprimer",
+    "printButton": "Télécharger le PDF",
+    "generatingButton": "Génération du PDF…",
     "daysToInclude": "Jours à inclure",
     "eventsToInclude": "Événements à inclure",
     "noRecurringActivities": "Aucune activité récurrente pour l'instant.",

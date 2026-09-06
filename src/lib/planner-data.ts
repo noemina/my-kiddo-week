@@ -1,5 +1,6 @@
 import { weekDays, isoDate } from "@/lib/week";
 import type { PlanData } from "@/lib/plan-store";
+import { categoryColor } from "@/lib/category-colors";
 
 export type ScheduleEntry = {
   id: string;
@@ -52,6 +53,7 @@ export function getWeekSchedule(plan: PlanData, weekStart: Date): KidSchedule[] 
           (a) =>
             a.dayOfWeek === dayIndex &&
             a.kidIds.includes(kid.id) &&
+            !a.excludeDates.includes(isoDate(date)) &&
             isActiveOn({ validFrom: toDate(a.validFrom), validTo: toDate(a.validTo) }, date)
         )
         .map((a) => ({
@@ -61,7 +63,7 @@ export function getWeekSchedule(plan: PlanData, weekStart: Date): KidSchedule[] 
           endTime: a.endTime,
           location: a.location,
           category: a.category,
-          color: a.color ?? kid.color,
+          color: a.color ?? categoryColor(a.category) ?? kid.color,
           kind: "recurring" as const,
         }));
 
@@ -74,7 +76,7 @@ export function getWeekSchedule(plan: PlanData, weekStart: Date): KidSchedule[] 
           endTime: e.endTime,
           location: e.location,
           category: e.category,
-          color: e.color ?? kid.color,
+          color: e.color ?? categoryColor(e.category) ?? kid.color,
           kind: "exception" as const,
         }));
 
@@ -115,6 +117,7 @@ export function getDatedPrintData(
 
   for (const a of plan.activities) {
     const date = days[a.dayOfWeek];
+    if (a.excludeDates.includes(isoDate(date))) continue;
     if (!isActiveOn({ validFrom: toDate(a.validFrom), validTo: toDate(a.validTo) }, date)) continue;
     instances.push({
       id: a.id,
@@ -123,7 +126,7 @@ export function getDatedPrintData(
       startTime: a.startTime,
       endTime: a.endTime,
       location: a.location,
-      color: a.color ?? firstKidColor(plan, a.kidIds) ?? "#6366f1",
+      color: a.color ?? categoryColor(a.category) ?? firstKidColor(plan, a.kidIds) ?? "#6366f1",
       dayIndex: a.dayOfWeek,
       kidIds: a.kidIds,
       defaultChecked: true,
@@ -140,7 +143,7 @@ export function getDatedPrintData(
       startTime: e.startTime,
       endTime: e.endTime,
       location: e.location,
-      color: e.color ?? firstKidColor(plan, e.kidIds) ?? "#6366f1",
+      color: e.color ?? categoryColor(e.category) ?? firstKidColor(plan, e.kidIds) ?? "#6366f1",
       dayIndex,
       kidIds: e.kidIds,
       defaultChecked: true,
@@ -161,7 +164,7 @@ export function getTypicalWeekData(plan: PlanData): { kids: PrintKid[]; instance
     startTime: a.startTime,
     endTime: a.endTime,
     location: a.location,
-    color: a.color ?? firstKidColor(plan, a.kidIds) ?? "#6366f1",
+    color: a.color ?? categoryColor(a.category) ?? firstKidColor(plan, a.kidIds) ?? "#6366f1",
     dayIndex: a.dayOfWeek,
     kidIds: a.kidIds,
     defaultChecked:

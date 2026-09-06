@@ -67,6 +67,17 @@
     "submitException": "Aggiungi evento singolo",
     "noKidsMessage": "Ancora nessun bambino aggiunto — vai alla pagina Bambini per aggiungere il primo."
   },
+  "Edit": {
+    "editTitle": "Modifica evento",
+    "seriesHint": "Questo evento si ripete ogni settimana. Scegli se la modifica si applica solo a questa occorrenza o a tutta la serie.",
+    "saveThisOnly": "Salva (solo questa occorrenza)",
+    "saveWholeSeries": "Salva (tutta la serie)",
+    "deleteThisOnly": "Elimina (solo questa occorrenza)",
+    "deleteWholeSeries": "Elimina (tutta la serie)",
+    "save": "Salva",
+    "delete": "Elimina",
+    "cancel": "Annulla"
+  },
   "PlannerErrors": {
     "kidRequired": "Seleziona almeno un bambino",
     "validityRange": "La data di inizio validità deve precedere quella di fine",
@@ -75,7 +86,8 @@
   },
   "Print": {
     "backToPlanner": "← Torna alla pianificazione",
-    "printButton": "Salva come PDF / Stampa",
+    "printButton": "Scarica il PDF",
+    "generatingButton": "Generazione del PDF…",
     "daysToInclude": "Giorni da includere",
     "eventsToInclude": "Eventi da includere",
     "noRecurringActivities": "Ancora nessuna attività ricorrente.",

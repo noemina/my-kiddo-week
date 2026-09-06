@@ -17,6 +17,8 @@ export type Activity = {
   validTo: string | null;
   includeInTypicalWeek: boolean;
   kidIds: string[];
+  /** Dated occurrences (ISO dates) skipped because that single event was edited or cancelled. */
+  excludeDates: string[];
 };
 
 export type ActivityException = {
@@ -62,13 +64,22 @@ function isPlanData(value: unknown): value is PlanData {
   );
 }
 
+// Older exported/stored plans predate the excludeDates field — default it in
+// rather than letting every reader guard against undefined.
+function normalizePlan(plan: PlanData): PlanData {
+  return {
+    ...plan,
+    activities: plan.activities.map((a) => ({ ...a, excludeDates: a.excludeDates ?? [] })),
+  };
+}
+
 function loadFromStorage(): PlanData {
   if (typeof window === "undefined") return EMPTY_PLAN;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return EMPTY_PLAN;
     const parsed = JSON.parse(raw);
-    return isPlanData(parsed) ? parsed : EMPTY_PLAN;
+    return isPlanData(parsed) ? normalizePlan(parsed) : EMPTY_PLAN;
   } catch {
     return EMPTY_PLAN;
   }
@@ -85,9 +96,13 @@ export type PlanStore = {
   setFamilyName: (name: string) => void;
   addKid: (kid: Omit<Kid, "id">) => void;
   removeKid: (id: string) => void;
-  addActivity: (activity: Omit<Activity, "id">) => void;
+  addActivity: (activity: Omit<Activity, "id" | "excludeDates">) => void;
+  updateActivity: (id: string, patch: Partial<Omit<Activity, "id" | "excludeDates">>) => void;
   removeActivity: (id: string) => void;
+  /** Skips a single dated occurrence of a recurring activity (edit-this-one or cancel-this-one). */
+  skipActivityOccurrence: (activityId: string, date: string) => void;
   addException: (exception: Omit<ActivityException, "id">) => void;
+  updateException: (id: string, patch: Partial<Omit<ActivityException, "id">>) => void;
   removeException: (id: string) => void;
   exportPlan: () => void;
   importPlan: (file: File) => Promise<void>;
@@ -142,11 +157,31 @@ export function PlanStoreProvider({ children }: { children: ReactNode }) {
           .filter((e) => e.kidIds.length > 0),
       })),
     addActivity: (activity) =>
-      setPlan((p) => ({ ...p, activities: [...p.activities, { ...activity, id: newId() }] })),
+      setPlan((p) => ({
+        ...p,
+        activities: [...p.activities, { ...activity, id: newId(), excludeDates: [] }],
+      })),
+    updateActivity: (id, patch) =>
+      setPlan((p) => ({
+        ...p,
+        activities: p.activities.map((a) => (a.id === id ? { ...a, ...patch } : a)),
+      })),
     removeActivity: (id) =>
       setPlan((p) => ({ ...p, activities: p.activities.filter((a) => a.id !== id) })),
+    skipActivityOccurrence: (activityId, date) =>
+      setPlan((p) => ({
+        ...p,
+        activities: p.activities.map((a) =>
+          a.id === activityId ? { ...a, excludeDates: [...a.excludeDates, date] } : a
+        ),
+      })),
     addException: (exception) =>
       setPlan((p) => ({ ...p, exceptions: [...p.exceptions, { ...exception, id: newId() }] })),
+    updateException: (id, patch) =>
+      setPlan((p) => ({
+        ...p,
+        exceptions: p.exceptions.map((e) => (e.id === id ? { ...e, ...patch } : e)),
+      })),
     removeException: (id) =>
       setPlan((p) => ({ ...p, exceptions: p.exceptions.filter((e) => e.id !== id) })),
     exportPlan: () => {
@@ -165,7 +200,7 @@ export function PlanStoreProvider({ children }: { children: ReactNode }) {
       const text = await file.text();
       const parsed = JSON.parse(text);
       if (!isPlanData(parsed)) throw new Error("invalid");
-      setPlan(parsed);
+      setPlan(normalizePlan(parsed));
     },
   };
 

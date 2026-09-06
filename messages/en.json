@@ -67,6 +67,17 @@
     "submitException": "Add one-off event",
     "noKidsMessage": "No kids added yet — head to the Kids page to add your first one."
   },
+  "Edit": {
+    "editTitle": "Edit event",
+    "seriesHint": "This event repeats every week. Choose whether your change applies to just this occurrence or to the whole series.",
+    "saveThisOnly": "Save (this occurrence)",
+    "saveWholeSeries": "Save (whole series)",
+    "deleteThisOnly": "Delete (this occurrence)",
+    "deleteWholeSeries": "Delete (whole series)",
+    "save": "Save",
+    "delete": "Delete",
+    "cancel": "Cancel"
+  },
   "PlannerErrors": {
     "kidRequired": "Select at least one kid",
     "validityRange": "Valid-from date must be before valid-to date",
@@ -75,7 +86,8 @@
   },
   "Print": {
     "backToPlanner": "← Back to planner",
-    "printButton": "Save as PDF / Print",
+    "printButton": "Download PDF",
+    "generatingButton": "Generating PDF…",
     "daysToInclude": "Days to include",
     "eventsToInclude": "Events to include",
     "noRecurringActivities": "No recurring activities yet.",
