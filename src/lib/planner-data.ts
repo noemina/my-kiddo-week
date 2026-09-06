@@ -93,6 +93,11 @@ export type PrintKid = { id: string; name: string; color: string };
 export type PrintInstance = {
   id: string;
   kind: "recurring" | "exception";
+  /** Groups every day-of-week occurrence of the same recurring activity so a
+   * picker can offer one checkbox for the whole series. An exception has no
+   * series to share, so it uses its own id — always shown on its own,
+   * including one split off a series via "edit this occurrence only". */
+  seriesId: string;
   title: string;
   startTime: string | null;
   endTime: string | null;
@@ -122,6 +127,7 @@ export function getDatedPrintData(
     instances.push({
       id: a.id,
       kind: "recurring",
+      seriesId: a.seriesId,
       title: a.title,
       startTime: a.startTime,
       endTime: a.endTime,
@@ -139,6 +145,7 @@ export function getDatedPrintData(
     instances.push({
       id: e.id,
       kind: "exception",
+      seriesId: e.id,
       title: e.title,
       startTime: e.startTime,
       endTime: e.endTime,
@@ -160,6 +167,7 @@ export function getTypicalWeekData(plan: PlanData): { kids: PrintKid[]; instance
   const instances: PrintInstance[] = plan.activities.map((a) => ({
     id: a.id,
     kind: "recurring",
+    seriesId: a.seriesId,
     title: a.title,
     startTime: a.startTime,
     endTime: a.endTime,

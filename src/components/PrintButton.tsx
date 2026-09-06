@@ -17,6 +17,19 @@ export function PrintButton({
     const node = targetRef.current;
     if (!node || busy) return;
     setBusy(true);
+
+    // Widen the captured element to match A4 landscape's aspect ratio before
+    // screenshotting it — otherwise its natural (narrower) ratio forces the
+    // "fit to page" step below to letterbox it, leaving big blank margins
+    // instead of the calendar filling the page. This makes the flexible day
+    // columns genuinely wider, not stretched/distorted.
+    const A4_LANDSCAPE_RATIO = 297 / 210;
+    const originalWidth = node.style.width;
+    const originalMaxWidth = node.style.maxWidth;
+    const targetWidth = Math.round(node.getBoundingClientRect().height * A4_LANDSCAPE_RATIO);
+    node.style.maxWidth = "none";
+    node.style.width = `${targetWidth}px`;
+
     try {
       const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
         // Tailwind v4's default palette uses oklch()/lab() colors, which the
@@ -51,6 +64,8 @@ export function PrintButton({
       pdf.addImage(imgData, "JPEG", x, y, renderWidth, renderHeight);
       pdf.save(`${fileName}.pdf`);
     } finally {
+      node.style.width = originalWidth;
+      node.style.maxWidth = originalMaxWidth;
       setBusy(false);
     }
   }

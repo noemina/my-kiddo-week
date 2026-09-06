@@ -93,6 +93,7 @@
     "printButton": "PDF herunterladen",
     "generatingButton": "PDF wird erstellt…",
     "daysToInclude": "Einzuschließende Tage",
+    "kidsToInclude": "Einzuschließende Kinder",
     "eventsToInclude": "Einzuschließende Ereignisse",
     "noRecurringActivities": "Noch keine wiederkehrenden Aktivitäten.",
     "noKidsMessage": "Zuerst Kinder hinzufügen, um eine druckbare Woche zu erstellen.",

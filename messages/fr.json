@@ -93,6 +93,7 @@
     "printButton": "Télécharger le PDF",
     "generatingButton": "Génération du PDF…",
     "daysToInclude": "Jours à inclure",
+    "kidsToInclude": "Enfants à inclure",
     "eventsToInclude": "Événements à inclure",
     "noRecurringActivities": "Aucune activité récurrente pour l'instant.",
     "noKidsMessage": "Ajoutez d'abord des enfants pour créer une semaine imprimable.",

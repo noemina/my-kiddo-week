@@ -43,8 +43,15 @@ export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabel
   const t = useTranslations("Print");
   const [notes, setNotes] = useState("");
   const [checkedDays, setCheckedDays] = useState<boolean[]>(() => Array(7).fill(true));
+  // Keyed by seriesId (not instance id) so every day-of-week occurrence of
+  // the same recurring activity shares one checkbox — an exception (whether
+  // standalone or split off a series via "edit this occurrence only") has no
+  // series to share, so it keys on its own id and stays independent.
   const [checkedInstances, setCheckedInstances] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(instances.map((i) => [i.id, i.defaultChecked]))
+    Object.fromEntries(instances.map((i) => [i.seriesId, i.defaultChecked]))
+  );
+  const [checkedKids, setCheckedKids] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(kids.map((k) => [k.id, true]))
   );
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -57,7 +64,28 @@ export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabel
     .map((label, index) => ({ label, index }))
     .filter((d) => checkedDays[d.index]);
 
-  const activeInstances = instances.filter((i) => checkedInstances[i.id] ?? false);
+  const activeInstances = instances.filter((i) => checkedInstances[i.seriesId] ?? false);
+
+  // One row per series for the picker — every day-of-week occurrence of the
+  // same recurring activity collapses to a single checkbox.
+  const seriesOptions = Array.from(
+    new Map(instances.map((i) => [i.seriesId, i])).values()
+  );
+
+  // Toggling a kid recomputes every series' checked state as "does it apply
+  // to at least one still-checked kid" — a shared event (e.g. both kids)
+  // stays on as long as either kid is still checked, it doesn't require both.
+  function handleKidToggle(kidId: string, isChecked: boolean) {
+    const nextCheckedKids = { ...checkedKids, [kidId]: isChecked };
+    setCheckedKids(nextCheckedKids);
+    setCheckedInstances((prev) => {
+      const next = { ...prev };
+      for (const instance of seriesOptions) {
+        next[instance.seriesId] = instance.kidIds.some((id) => nextCheckedKids[id] ?? true);
+      }
+      return next;
+    });
+  }
   const timedInstances = activeInstances.filter((i) => i.startTime);
 
   const range = computeTimeRange(
@@ -88,7 +116,7 @@ export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabel
         <PrintButton targetRef={printRef} fileName={fileName} />
       </div>
 
-      <div className="mb-6 grid gap-4 sm:grid-cols-2">
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <fieldset className="rounded-md border border-gray-200 p-3 text-sm dark:border-gray-800">
           <legend className="px-1 font-semibold">{t("daysToInclude")}</legend>
           <div className="mt-1 flex flex-wrap gap-3">
@@ -110,18 +138,39 @@ export function PrintWeekView({ familyName, weekLabel, kids, instances, dayLabel
         </fieldset>
 
         <fieldset className="rounded-md border border-gray-200 p-3 text-sm dark:border-gray-800">
+          <legend className="px-1 font-semibold">{t("kidsToInclude")}</legend>
+          <div className="mt-1 flex flex-wrap gap-3">
+            {kids.map((kid) => (
+              <label key={kid.id} className="flex items-center gap-1.5">
+                <input
+                  type="checkbox"
+                  checked={checkedKids[kid.id] ?? true}
+                  onChange={(e) => handleKidToggle(kid.id, e.target.checked)}
+                />
+                <span style={{ color: kid.color }} className="font-medium">
+                  {kid.name}
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset className="rounded-md border border-gray-200 p-3 text-sm dark:border-gray-800">
           <legend className="px-1 font-semibold">{t("eventsToInclude")}</legend>
           <div className="mt-1 flex max-h-40 flex-col gap-1 overflow-y-auto">
             {instances.length === 0 && (
               <p className="text-gray-500">{t("noRecurringActivities")}</p>
             )}
-            {instances.map((instance) => (
-              <label key={instance.id} className="flex items-center gap-1.5">
+            {seriesOptions.map((instance) => (
+              <label key={instance.seriesId} className="flex items-center gap-1.5">
                 <input
                   type="checkbox"
-                  checked={checkedInstances[instance.id] ?? false}
+                  checked={checkedInstances[instance.seriesId] ?? false}
                   onChange={(e) =>
-                    setCheckedInstances((prev) => ({ ...prev, [instance.id]: e.target.checked }))
+                    setCheckedInstances((prev) => ({
+                      ...prev,
+                      [instance.seriesId]: e.target.checked,
+                    }))
                   }
                 />
                 {instance.title}

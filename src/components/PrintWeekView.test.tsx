@@ -23,6 +23,7 @@ const instances: PrintInstance[] = [
   {
     id: "act-1",
     kind: "recurring",
+    seriesId: "series-1",
     title: "Swimming",
     startTime: "17:00",
     endTime: "18:00",
@@ -35,6 +36,7 @@ const instances: PrintInstance[] = [
   {
     id: "act-2",
     kind: "recurring",
+    seriesId: "series-2",
     title: "Gym class",
     startTime: "16:00",
     endTime: "17:00",
